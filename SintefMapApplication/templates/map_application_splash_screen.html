@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <Button id="registered_endpoints_button">
+        Click me to view other registered endpoints in this application
+    </Button>
+    <Button id="mapclient_standalone">
+        Click me to go to the standalone map client
+    </Button>
+    <Button id="mapclient_standalone">
+        Click me to go to the standalone map client
+    </Button>
+    <Button id="mobile_mapclient">
+        Click me to view the mobile map client
+    </Button>
+    <Button id="data_visualization">
+        Click me to view the data visualization framework with map and charts combined
+    </Button>
+
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script>
+
+    $("#registered_endpoints_button").click(function () {
+        window.location.href = "registered_endpoints";
+    });
+    $("#mapclient_standalone").click(function () {
+        window.location.href = "pc ";
+    });
+    $("#mobile_mapclient").click(function() {
+        window.location.href = "android";
+    });
+    $("#data_visualization").click(function () {
+        window.location.href = "create_new_site ";
+    });
+
+</script>
+</body>
+</html>
