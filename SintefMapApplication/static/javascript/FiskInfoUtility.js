@@ -23,7 +23,7 @@ var FiskInfoUtility = function () {
             if ("withCredentials" in req) {
                 req.open(method, url, true);
                 req.setRequestHeader("Authorization",
-                    "Bearer " + token)
+                    "Bearer " + token);
                 req.onerror = errback;
                 req.onreadystatechange = function () {
                     if (req.readyState === 4) {
@@ -50,6 +50,6 @@ var FiskInfoUtility = function () {
     }
 
     return {
-        corsRequest : corsRequest
+        corsRequest: corsRequest
     }
 }();
