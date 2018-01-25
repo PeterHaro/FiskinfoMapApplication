@@ -37,7 +37,8 @@ BarentswatchMapServicesCommunicator.prototype.createApiServiceVectorLayer = func
             url: this._buildApiServiceQueryString(layerName),
             format: new ol.format.GeoJSON()
         }),
-        style: style
+        style: style,
+        title: layerName
     });
 };
 
@@ -92,7 +93,8 @@ BarentswatchMapServicesCommunicator.prototype.createSingleTileWMS = function (la
             },
             serverType: this._barentswatchServerType,
             transparent: this._transparencyPolicy
-        })
+        }),
+        title: layername
     });
 };
 
