@@ -36,26 +36,14 @@ map = new ol.Map({
 map.addLayer(barentswatchCommunicator.createWaveWarningSingleTileWMS());
 map.addLayer(barentswatchCommunicator.createIceEdgeSingleTileWMS());
 populateMap();
+var popupOverlay = new ol.Overlay({
+    element: container,
+    autoPan: true,
+    autoPanAnimation: {
+        duration: 250
+    }
+});
 
-/*
-
- var npdFacilityStyleLayer = new OpenLayers.Style(npdFacilityStyle, {
- context: {
- pointRadius: function (feature) {
- retVal = map.getZoom() > 6 ? 11 : 7;
- return retVal;
- },
- }
- });
-
- new OpenLayers.Layer.Vector("Havbunnsinstallasjoner", {
- strategies: [new OpenLayers.Strategy.Cluster({
- distance: map.getZoom() > 7 ? 5 : 15,
- threshold: 2
- })]
- }),
-
- */
 
 function createClusterSource(_source) {
     return new ol.source.Cluster({
@@ -75,21 +63,15 @@ function buggyZoomToMyPosition() {
     });
 }
 
-var iceChartSelectStyles = {
-    "D": new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: 8,
-            snapToPixel: false,
-            fill: new ol.style.Fill({color: 'rgba(102, 204, 255, 1)'}),
-            stroke: new ol.style.Stroke({
-                color: 'rgba(51, 153, 255, 1)',
-                width: 2
-            })
-        })
-    }),
-    zIndex: 2
-};
+function dispatchDataToBottomsheet(feature, title) {
+    console.log(feature);
+    var _title = title;
+    var _type = feature.get("")
 
+
+}
+
+// TODO: REFACTOR ME
 var displayFeatureInfo = function (pixel) {
     var features = [];
     var layers = [];
@@ -102,8 +84,32 @@ var displayFeatureInfo = function (pixel) {
 
     //Handle only last selected feature
     var selectedLayerName = layers[layers.length - 1].get("title");
-    switch(selectedLayerName) {
-
+    switch (selectedLayerName) {
+        case "icechart":
+            dispatchDataToBottomsheet(features[features.length - 1], "Iskonsentrasjon");
+            break;
+        case "npdsurveyongoing":
+            dispatchDataToBottomsheet(features[features.length - 1], "Seismikk, pågående");
+            break;
+        case "npdsurveyplanned":
+            dispatchDataToBottomsheet(features[features.length - 1], "Seismikk, planlagt");
+            break;
+        case "npdfacility":
+            dispatchDataToBottomsheet(features[features.length - 1], "Havbunnsinstallasjoner");
+            break;
+        case "jmelding":
+            dispatchDataToBottomsheet(features[features.length - 1], "Midlertidig stengte felter");
+            break;
+        case "coastalcodregulations":
+            dispatchDataToBottomsheet(features[features.length - 1], selectedLayerName);
+            break;
+        case "coralreef":
+            dispatchDataToBottomsheet(features[features.length - 1], "Forbudsområde - Korallrev");
+            break;
+        default:
+            popupOverlay.setPosition(undefined);
+            closer.blur();
+            break;
     }
 
 
@@ -174,3 +180,16 @@ function fail() {
 }
 
 // __END_SIMPLE_GEOLOCATION_INTERFACE_
+
+// __BEGIN_POPUP_
+/**
+ * Add a click handler to hide the popup.
+ * @return {boolean} Don't follow the href.
+ */
+closer.onclick = function () {
+    popupOverlay.setPosition(undefined);
+    closer.blur();
+    return false;
+};
+
+// __END_POPUP
