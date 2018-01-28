@@ -63,11 +63,10 @@ function buggyZoomToMyPosition() {
     });
 }
 
-function dispatchDataToBottomsheet(feature, title) {
-    console.log(feature);
-    var _title = title;
-    var _type = feature.get("")
-
+function dispatchDataToBottomsheet(feature, type) {
+    var _feature = BarentswatchApiObjectFactory(type);
+    _feature.parseObject(feature);
+    //DISPATCH HERE
 
 }
 
