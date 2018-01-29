@@ -35,3 +35,7 @@ OngoingSeismic.prototype.parseObject = function (ongoingSeismicObject) {
     this._mapUrl = ongoingSeismicObject.get("mapurl");
     this._factPage = ongoingSeismicObject.get("factv2url");
 };
+
+OngoingSeismic.prototype.getPeriod = function() {
+    return FiskInfoUtility.formatDate(new Date(this._fromDate)) + " - " + FiskInfoUtility.formatDate(new Date(this._toDate));
+};

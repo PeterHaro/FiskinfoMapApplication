@@ -12,7 +12,17 @@ SimpleHtmlBuilder.prototype.createModalIconLine = function (iconName, fieldName,
     this.addText(fieldValue);
     this.closeDiv();
     this.endRow();
-    return this.getString();
+    var retval = this.getString();
+    this.clear();
+    return retval;
+};
+
+SimpleHtmlBuilder.prototype.getSelfContainedHeading = function(headingSize, text) {
+    return "<h" + headingSize + " class='blue-text'>" + text + "</h" + headingSize + ">";
+};
+
+SimpleHtmlBuilder.prototype.createHeading = function(headingSize, text) {
+    this._retval += "<h" + headingSize + ">" + text + "</h" + headingSize + ">";
 };
 
 SimpleHtmlBuilder.prototype.addText = function (text) {

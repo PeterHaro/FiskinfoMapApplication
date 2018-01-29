@@ -49,7 +49,24 @@ var FiskInfoUtility = function () {
         }
     }
 
+    function formatDate(date) {
+        var monthNames = [
+            "Januar", "Februar", "Mars",
+            "April", "Mai", "Juni", "Juli",
+            "August", "September", "Oktober",
+            "November", "Desember"
+        ];
+
+        var day = date.getDate();
+        var monthIndex = date.getMonth();
+        var year = date.getFullYear();
+
+        return day + '.' + monthNames[monthIndex] + ' ' + year;
+    }
+
+
     return {
-        corsRequest: corsRequest
+        corsRequest: corsRequest,
+        formatDate: formatDate
     }
 }();
