@@ -1,9 +1,10 @@
-var applicationType = Backend.Type["COMPUTER"];
+var applicationType = Backend.Type.COMPUTER;
 
 var map;
 var statensKartverkCommunicator = new StatensKartverkCommunicator();
 var barentswatchCommunicator = new BarentswatchMapServicesCommunicator();
 var tileLayerWMTS = statensKartverkCommunicator.CreateTileLayerWTMSFromSource(statensKartverkCommunicator.CreateSourceWmts("sjokartraster"), "base", "Norges grunnkart");
+var barentswatchObjectFactory = new BarentswatchApiObjectFactory();
 var backendCommunicator = BackendFactory.createBackend(applicationType);
 
 var container = document.getElementById('popup');
@@ -64,9 +65,11 @@ function buggyZoomToMyPosition() {
 }
 
 function dispatchDataToBottomsheet(feature, type) {
-    var _feature = BarentswatchApiObjectFactory(type);
+    var _feature = barentswatchObjectFactory.create(type);
     _feature.parseObject(feature);
     //DISPATCH HERE
+    backendCommunicator.showBottmsheet(_feature);
+
 
 }
 
@@ -85,25 +88,25 @@ var displayFeatureInfo = function (pixel) {
     var selectedLayerName = layers[layers.length - 1].get("title");
     switch (selectedLayerName) {
         case "icechart":
-            dispatchDataToBottomsheet(features[features.length - 1], "Iskonsentrasjon");
+            dispatchDataToBottomsheet(features[features.length - 1], BarentswatchApiObjectTypes.ICE_CONSENTRATION);
             break;
         case "npdsurveyongoing":
-            dispatchDataToBottomsheet(features[features.length - 1], "Seismikk, pågående");
+            dispatchDataToBottomsheet(features[features.length - 1], BarentswatchApiObjectTypes.ONGOING_SEISMIC);
             break;
         case "npdsurveyplanned":
-            dispatchDataToBottomsheet(features[features.length - 1], "Seismikk, planlagt");
+            dispatchDataToBottomsheet(features[features.length - 1], BarentswatchApiObjectTypes.PLANNED_SEISMIC);
             break;
         case "npdfacility":
-            dispatchDataToBottomsheet(features[features.length - 1], "Havbunnsinstallasjoner");
+            dispatchDataToBottomsheet(features[features.length - 1], BarentswatchApiObjectTypes.SEABOTTOM_INSTALLATION);
             break;
         case "jmelding":
-            dispatchDataToBottomsheet(features[features.length - 1], "Midlertidig stengte felter");
+            dispatchDataToBottomsheet(features[features.length - 1], BarentswatchApiObjectTypes.JMESSAGE);
             break;
         case "coastalcodregulations":
-            dispatchDataToBottomsheet(features[features.length - 1], selectedLayerName);
+            dispatchDataToBottomsheet(features[features.length - 1], BarentswatchApiObjectTypes.COASTLINES_COD);
             break;
         case "coralreef":
-            dispatchDataToBottomsheet(features[features.length - 1], "Forbudsområde - Korallrev");
+            dispatchDataToBottomsheet(features[features.length - 1], BarentswatchApiObjectTypes.CORAL_REEF);
             break;
         default:
             popupOverlay.setPosition(undefined);

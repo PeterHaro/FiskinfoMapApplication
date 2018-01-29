@@ -1,5 +1,6 @@
 function OngoingSeismic() {
     this._type = BarentswatchApiObjectTypes.ONGOING_SEISMIC;
+    this._norwegianTitle = "Pågående seismikk";
     this._name = "";
     this._areaSubheader = "";
     this._seismicVessel = "";

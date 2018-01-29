@@ -5,7 +5,7 @@ BackendFactory.createBackend = function (backendType) {
             break;
         case "IOS":
             break;
-        case "COMPUTER":
+        case Backend.Type.COMPUTER:
             return new ComputerBackend();
             break;
         default:
