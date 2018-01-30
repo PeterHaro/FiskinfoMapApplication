@@ -45,7 +45,7 @@ def get_token():
         return token_json["access_token"]
     username = ""
     password = ""
-    with open("secrets.json") as secret_file:
+    with open("super_secrets.json") as secret_file:
         file_contents = json.load(secret_file)
         username = file_contents["username"]
         password = file_contents["password"]

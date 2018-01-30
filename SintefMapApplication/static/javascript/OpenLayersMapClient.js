@@ -127,6 +127,9 @@ function populateMap() {
     var coastalcodRegulations = barentswatchCommunicator.createApiServiceVectorLayer("coastalcodregulations", BarentswatchStylesRepository.BarentswatchCoastalRegulationStyle);
     var coralReef = barentswatchCommunicator.createApiServiceVectorLayer("coralreef", BarentswatchStylesRepository.BarentswatchCoralReefStyle);
     var aisData = barentswatchCommunicator.fetchAISData();
+
+
+
     map.addLayer(iceChartLayer);
     map.addLayer(ongoingSeismic);
     map.addLayer(plannedSeismic);

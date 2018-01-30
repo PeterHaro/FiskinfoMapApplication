@@ -42,6 +42,11 @@ BarentswatchMapServicesCommunicator.prototype.createApiServiceVectorLayer = func
     });
 };
 
+// TODO: fishingfacility
+BarentswatchMapServicesCommunicator.prototype.sendAuthenticatedRequest = function(token, layer, callback) {
+    FiskInfoUtility.corsRequest("https://www.barentswatch.no/api/v1/geodata/download/" + layer "?format=JSON", "GET", "", callback, corsErrBack, token);
+};
+
 // ?????
 BarentswatchMapServicesCommunicator.prototype.createClusturedApiServiceVectorLayer = function (layerName, style) {
     var vectorSource = new ol.layer.Vector({
