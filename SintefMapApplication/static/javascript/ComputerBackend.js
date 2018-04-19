@@ -3,14 +3,18 @@ function ComputerBackend() {
     this._httpBuilder = new SimpleHtmlBuilder();
 }
 
-ComputerBackend.prototype.getToken = function () {
+ComputerBackend.prototype.getToken = function (_callback, that) {
     if (this._token !== "") {
         return this._token;
     }
-        FiskInfoUtility.httpClient.get("/maps/pc/token", null, function(response) {
-            console.log(response.responseText);
-            this._token = response.responseText;
-        });
+    FiskInfoUtility.httpClient.get("/maps/pc/token", null, function (response) {
+        this._token = response.responseText;
+        if (that !== null) {
+            _callback(this._token, that)
+        } else {
+            _callback(this._token);
+        }
+    });
     return this._token;
 };
 
@@ -54,7 +58,7 @@ ComputerBackend.prototype.showBottmsheet = function (feature) {
     instance.open();
 };
 
-ComputerBackend.prototype._createIceChartConsentrationContent = function(feature) {
+ComputerBackend.prototype._createIceChartConsentrationContent = function (feature) {
 
 };
 

@@ -118,7 +118,6 @@ var displayFeatureInfo = function (pixel) {
 };
 
 function populateMap() {
-    var token = backendCommunicator.getToken();
     var iceChartLayer = barentswatchCommunicator.createApiServiceVectorLayer("icechart", BarentswatchStylesRepository.BarentswatchIceChartStyle);
     var ongoingSeismic = barentswatchCommunicator.createApiServiceVectorLayer("npdsurveyongoing", BarentswatchStylesRepository.BarentswatchActiveSeismicStyle);
     var plannedSeismic = barentswatchCommunicator.createApiServiceVectorLayer("npdsurveyplanned", BarentswatchStylesRepository.BarentswatchPlannedSeismicStyle);
@@ -126,8 +125,8 @@ function populateMap() {
     var legalMessages = barentswatchCommunicator.createApiServiceVectorLayer("jmelding", BarentswatchStylesRepository.BarentswatchJMessagesStyle);
     var coastalcodRegulations = barentswatchCommunicator.createApiServiceVectorLayer("coastalcodregulations", BarentswatchStylesRepository.BarentswatchCoastalRegulationStyle);
     var coralReef = barentswatchCommunicator.createApiServiceVectorLayer("coralreef", BarentswatchStylesRepository.BarentswatchCoralReefStyle);
-    var aisData = barentswatchCommunicator.fetchAISData();
-
+    //   var aisData = barentswatchCommunicator.fetchAISData();
+    var actualAisData = barentswatchCommunicator.createAisVectorLayer(backendCommunicator);
 
 
     map.addLayer(iceChartLayer);
@@ -137,7 +136,7 @@ function populateMap() {
     map.addLayer(legalMessages);
     map.addLayer(coastalcodRegulations);
     map.addLayer(coralReef);
-    map.addLayer(aisData);
+    map.addLayer(actualAisData);
 
     // SELECT HANDLERS
     // __BEGIN_SELECTION_STYLES_

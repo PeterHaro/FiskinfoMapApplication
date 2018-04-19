@@ -1,4 +1,5 @@
 function BarentswatchMapServicesCommunicator() {
+    this._token = "";
     this._wms_url = "https://geo.barentswatch.no/geoserver/bw/wms";
     this._map_services_base_url = "https://www.barentswatch.no/api/v1/geodata/download/";
     this._ais_service_url = "https://www.barentswatch.no/api/v1/geodata/ais/positions?xmin=0&ymin=53&xmax=38&ymax=81";
@@ -42,10 +43,28 @@ BarentswatchMapServicesCommunicator.prototype.createApiServiceVectorLayer = func
     });
 };
 
-// TODO: fishingfacility
-BarentswatchMapServicesCommunicator.prototype.sendAuthenticatedRequest = function(token, layer, callback) {
-    FiskInfoUtility.corsRequest("https://www.barentswatch.no/api/v1/geodata/download/" + layer "?format=JSON", "GET", "", callback, corsErrBack, token);
+BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedVectorLayer = function (data) {
+    console.log(data);
+    console.log("Entering parseAuthenticatedVectorLayer ");
+    var layer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: (new ol.format.GeoJSON()).readFeatures(data)
+        }),
+        style: style,
+        title: layerName
+    });
+    return layer;
 };
+
+BarentswatchMapServicesCommunicator.prototype.createAuthenticatedServiceVectorLayer = function (token, query, layerName) {
+    console.log(token);
+    console.log("Entering create authenticatedServiceVectorLayer");
+    FiskInfoUtility.corsRequest(query, "GET", "", this.parseAuthenticatedVectorLayer, corsErrBack, token);
+};
+
+function corsErrBack(error) {
+    alert(error);
+}
 
 // ?????
 BarentswatchMapServicesCommunicator.prototype.createClusturedApiServiceVectorLayer = function (layerName, style) {
@@ -61,6 +80,24 @@ BarentswatchMapServicesCommunicator.prototype.createClusturedApiServiceVectorLay
         distance: 10,
         source: vectorSource
     });
+};
+
+BarentswatchMapServicesCommunicator.prototype._createAuthenticatedAiSLayer = function (token, that) {
+    that._token = token;
+    if (that !== null) {
+        return that.createAuthenticatedServiceVectorLayer(that._token, "https://www.barentswatch.no/api/v1/geodata/ais/positions?xmin=0&ymin=53&xmax=38&ymax=81", "Fartøy (AIS)");
+    } else {
+        return this.barentswatchCommunicator.createAuthenticatedServiceVectorLayer(that._token, "https://www.barentswatch.no/api/v1/geodata/ais/positions?xmin=0&ymin=53&xmax=38&ymax=81", "Fartøy (AIS)");
+    }
+
+};
+
+BarentswatchMapServicesCommunicator.prototype.createAisVectorLayer = function (backend) {
+    if (this._token === "") {
+        backend.getToken(this._createAuthenticatedAiSLayer, this);
+    } else {
+        return this.createAuthenticatedServiceVectorLayer(this._token, "https://www.barentswatch.no/api/v1/geodata/ais/positions?xmin=0&ymin=53&xmax=38&ymax=81", "Fartøy (AIS)");
+    }
 };
 
 // __END_API_SERVICES_
