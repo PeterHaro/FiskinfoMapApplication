@@ -80,9 +80,11 @@ var displayFeatureInfo = function (pixel) {
     map.forEachFeatureAtPixel(pixel, function (feature, layer) {
         features.push(feature);
         layers.push(layer);
-        console.log(feature);
-        console.log(layer);
     });
+    if (!Array.isArray(layers) || !layers.length) {
+        // No features, escape early
+        return;
+    }
 
     //Handle only last selected feature
     var selectedLayerName = layers[layers.length - 1].get("title");
@@ -108,6 +110,9 @@ var displayFeatureInfo = function (pixel) {
         case "coralreef":
             dispatchDataToBottomsheet(features[features.length - 1], BarentswatchApiObjectTypes.CORAL_REEF);
             break;
+        case "AIS":
+            console.log("AIS FOUND");
+            break;
         default:
             popupOverlay.setPosition(undefined);
             closer.blur();
@@ -118,6 +123,7 @@ var displayFeatureInfo = function (pixel) {
 };
 
 function populateMap() {
+    barentswatchCommunicator.setMap(map);
     var iceChartLayer = barentswatchCommunicator.createApiServiceVectorLayer("icechart", BarentswatchStylesRepository.BarentswatchIceChartStyle);
     var ongoingSeismic = barentswatchCommunicator.createApiServiceVectorLayer("npdsurveyongoing", BarentswatchStylesRepository.BarentswatchActiveSeismicStyle);
     var plannedSeismic = barentswatchCommunicator.createApiServiceVectorLayer("npdsurveyplanned", BarentswatchStylesRepository.BarentswatchPlannedSeismicStyle);
@@ -126,7 +132,7 @@ function populateMap() {
     var coastalcodRegulations = barentswatchCommunicator.createApiServiceVectorLayer("coastalcodregulations", BarentswatchStylesRepository.BarentswatchCoastalRegulationStyle);
     var coralReef = barentswatchCommunicator.createApiServiceVectorLayer("coralreef", BarentswatchStylesRepository.BarentswatchCoralReefStyle);
     //   var aisData = barentswatchCommunicator.fetchAISData();
-    var actualAisData = barentswatchCommunicator.createAisVectorLayer(backendCommunicator);
+    barentswatchCommunicator.createAisVectorLayer(backendCommunicator, BarentswatchStylesRepository.BarentswatchAisStyle);
 
 
     map.addLayer(iceChartLayer);
@@ -136,7 +142,6 @@ function populateMap() {
     map.addLayer(legalMessages);
     map.addLayer(coastalcodRegulations);
     map.addLayer(coralReef);
-    map.addLayer(actualAisData);
 
     // SELECT HANDLERS
     // __BEGIN_SELECTION_STYLES_

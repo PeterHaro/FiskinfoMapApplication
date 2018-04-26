@@ -1,8 +1,10 @@
+//DEPENDS ON BarentswatchStylesRepository
 function BarentswatchMapServicesCommunicator() {
     this._token = "";
     this._wms_url = "https://geo.barentswatch.no/geoserver/bw/wms";
     this._map_services_base_url = "https://www.barentswatch.no/api/v1/geodata/download/";
     this._ais_service_url = "https://www.barentswatch.no/api/v1/geodata/ais/positions?xmin=0&ymin=53&xmax=38&ymax=81";
+    this._tool_serive_url = "https://www.barentswatch.no/api/v1/geodata/download/fishingfacility?format=OLEX";
     this._map_services_format = "?format=JSON";
     this._format = "image/png";
     this._crossOriginPolicy = "anonymous";
@@ -13,7 +15,13 @@ function BarentswatchMapServicesCommunicator() {
     this.sProjection = "EPSG:3857";
     this.projection = ol.proj.get(this.sProjection);
     this.projectionExtent = this.projection.getExtent();
+    this._map = null;
+    this._aisStyle = null;
 }
+
+BarentswatchMapServicesCommunicator.prototype.setMap = function (map) {
+    this._map = map;
+};
 
 // __BEGIN_AIS_SERVICE_
 BarentswatchMapServicesCommunicator.prototype.fetchAISData = function () {
@@ -43,23 +51,98 @@ BarentswatchMapServicesCommunicator.prototype.createApiServiceVectorLayer = func
     });
 };
 
-BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedVectorLayer = function (data) {
-    console.log(data);
-    console.log("Entering parseAuthenticatedVectorLayer ");
-    var layer = new ol.layer.Vector({
+BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer = function (data) {
+    var jsonData = JSON.parse(data);
+    var geoJsonData = {
+        "type": "FeatureCollection",
+        "features": []
+    };
+
+    for (var i = 0; i < jsonData.length; i++) {
+        geoJsonData.features.push({
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [jsonData[i].Lon, jsonData[i].Lat]
+            },
+            "properties": {
+                "TimeStamp": jsonData[i].TimeStamp,
+                "Sog": jsonData[i].Sog,
+                "Rot": jsonData[i].Rot,
+                "Navstat": jsonData[i].Navstat,
+                "Mmsi": jsonData[i].Mmsi,
+                "Cog": jsonData[i].Cog,
+                "ShipType": jsonData[i].ShipType,
+                "Name": jsonData[i].Name,
+                "Imo": jsonData[i].Imo,
+                "Callsign": jsonData[i].Callsign,
+                "Country": jsonData[i].Country,
+                "Eta": jsonData[i].Eta,
+                "Destination": jsonData[i].Destination,
+                "IsSurvey": jsonData[i].IsSurvey,
+                "Source": jsonData[i].Source
+            }
+        });
+    }
+
+    /* // OLD SAFE
+        var layer = new ol.layer.Vector({
         source: new ol.source.Vector({
-            features: (new ol.format.GeoJSON()).readFeatures(data)
+            features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
+                featureProjection: "EPSG:3857"
+            })
         }),
-        style: style,
-        title: layerName
+        style: BarentswatchStylesRepository.BarentswatchAisStyle,
+        title: "AIS"
     });
-    return layer;
+     */
+
+    /*  //WORKING CLUSTER LAYER, NOW GET ON STYLES!
+        var layer = new ol.layer.Vector({
+        source: new ol.source.Cluster({
+            distance: 10,
+            source: new ol.source.Vector({
+                features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
+                    featureProjection: "EPSG:3857"
+                })
+            })
+        }),
+        style: BarentswatchStylesRepository.BarentswatchAisStyle,
+        title: "AIS"
+    });
+     */
+
+    var layer = new ol.layer.Vector({
+        source: new ol.source.Cluster({
+            distance: 10,
+            source: new ol.source.Vector({
+                features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
+                    featureProjection: "EPSG:3857"
+                })
+            })
+        }),
+        style: BarentswatchStylesRepository.BarentswatchAisStyle,
+        title: "AIS"
+    });
+
+    if (this.map != null) {
+        BarentswatchStylesRepository.SetAisVectorLayer(layer);
+        map.addLayer(layer);
+        map.addInteraction(BarentswatchStylesRepository.BarentswatchAisSelectionStyle());
+    }
 };
 
-BarentswatchMapServicesCommunicator.prototype.createAuthenticatedServiceVectorLayer = function (token, query, layerName) {
-    console.log(token);
-    console.log("Entering create authenticatedServiceVectorLayer");
-    FiskInfoUtility.corsRequest(query, "GET", "", this.parseAuthenticatedVectorLayer, corsErrBack, token);
+BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer = function(data) {
+
+};
+
+BarentswatchMapServicesCommunicator.prototype.createAuthenticatedServiceVectorLayer = function (token, query, authenticatedCall) {
+    if(authenticatedCall === "ais") {
+        FiskInfoUtility.corsRequest(query, "GET", "", this.parseAuthenticatedAISVectorLayer, corsErrBack, token);
+    } else if (authenticatedCall === "tools") {
+        FiskInfoUtility.corsRequest(query, "GET", "", this.parseAuthenticatedToolsVectorLayer, corsErrBack, token);
+    }
+
 };
 
 function corsErrBack(error) {
@@ -82,21 +165,48 @@ BarentswatchMapServicesCommunicator.prototype.createClusturedApiServiceVectorLay
     });
 };
 
+BarentswatchMapServicesCommunicator.prototype._createClusteredSource = function (_distance, _source) {
+    return new ol.source.Cluster({
+        distance: parseInt(_distance, 10),
+        source: _source
+    });
+};
+
 BarentswatchMapServicesCommunicator.prototype._createAuthenticatedAiSLayer = function (token, that) {
     that._token = token;
     if (that !== null) {
-        return that.createAuthenticatedServiceVectorLayer(that._token, "https://www.barentswatch.no/api/v1/geodata/ais/positions?xmin=0&ymin=53&xmax=38&ymax=81", "Fartøy (AIS)");
+        return that.createAuthenticatedServiceVectorLayer(that._token, that._ais_service_url, "ais");
     } else {
-        return this.barentswatchCommunicator.createAuthenticatedServiceVectorLayer(that._token, "https://www.barentswatch.no/api/v1/geodata/ais/positions?xmin=0&ymin=53&xmax=38&ymax=81", "Fartøy (AIS)");
+        return this.barentswatchCommunicator.createAuthenticatedServiceVectorLayer(this._token, this._ais_service_url, "ais");
     }
 
 };
 
-BarentswatchMapServicesCommunicator.prototype.createAisVectorLayer = function (backend) {
+BarentswatchMapServicesCommunicator.prototype.createAisVectorLayer = function (backend, aisStyle) {
+    if (aisStyle !== null) {
+        this._aisStyle = aisStyle;
+    }
     if (this._token === "") {
         backend.getToken(this._createAuthenticatedAiSLayer, this);
     } else {
-        return this.createAuthenticatedServiceVectorLayer(this._token, "https://www.barentswatch.no/api/v1/geodata/ais/positions?xmin=0&ymin=53&xmax=38&ymax=81", "Fartøy (AIS)");
+        return this.createAuthenticatedServiceVectorLayer(this._token, this._ais_service_url, "ais");
+    }
+};
+
+BarentswatchMapServicesCommunicator.prototype._createAuthenticatedToolsLayer = function(token, that) {
+    that._token = token;
+    if(that !== null) {
+        that.createAuthenticatedServiceVectorLayer(that._token, that._tool_serive_url, "tools")
+    } else {
+        this.barentswatchCommunicator.createAuthenticatedServiceVectorLayer(this._token, this._tool_serive_url, "tools")
+    }
+};
+
+BarentswatchMapServicesCommunicator.prototype.createToolsVectorLayer = function(backend) {
+    if (this._token === "") {
+        backend.getToken(this._createAuthenticatedToolsLayer, this);
+    } else {
+        this.createAuthenticatedServiceVectorLayer(this._token, this._tool_serive_url, "tools")
     }
 };
 

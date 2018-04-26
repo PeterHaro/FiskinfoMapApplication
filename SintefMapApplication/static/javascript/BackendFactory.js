@@ -7,7 +7,6 @@ BackendFactory.createBackend = function (backendType) {
             break;
         case Backend.Type.COMPUTER:
             return new ComputerBackend();
-            break;
         default:
             console.log("Unknown backend type. Please validate the backend communication interface, and the value passed to the backend factory");
     }

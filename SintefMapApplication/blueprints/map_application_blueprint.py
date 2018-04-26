@@ -1,16 +1,26 @@
 import json
 import os
 
-from flask import Blueprint, render_template, abort, request
-from jinja2 import TemplateNotFound
 import requests
 import requests.auth
+from flask import Blueprint, Response, render_template, abort
+from jinja2 import TemplateNotFound
 
 templates_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../templates')
+static_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../static')
 map_application_base_blueprint = Blueprint('map_application_base_blueprint', __name__,
                                            template_folder=templates_directory)
 
 token_json = ""
+
+
+def resource(filename):
+    path = os.path.join(
+        static_directory,
+        filename)
+    return open(path, 'rb').read()
+
+
 # Default map application
 @map_application_base_blueprint.route('/')
 def show():
@@ -38,6 +48,18 @@ def ol_c_show():
         abort(404)
 
 
+@map_application_base_blueprint.route('/boat-orange.svg')
+def show_boat_orange():
+    data = resource('boat-orange.svg')
+    return Response(data, headers={'Content-Type': 'image/svg+xml'})
+
+
+@map_application_base_blueprint.route('/boat-grey.svg')
+def show_boat_grey():
+    data = resource('boat-grey.svg')
+    return Response(data, headers={'Content-Type': 'image/svg+xml'})
+
+
 @map_application_base_blueprint.route("/pc/token")
 def get_token():
     global token_json
@@ -45,11 +67,12 @@ def get_token():
         return token_json["access_token"]
     username = ""
     password = ""
+    import os
+    print(os.getcwd())
     with open("super_secrets.json") as secret_file:
         file_contents = json.load(secret_file)
         username = file_contents["username"]
         password = file_contents["password"]
-
 
     path = "https://www.barentswatch.no/api/token"
     post_data = {"grant_type": "password",
@@ -57,7 +80,7 @@ def get_token():
                  "password": password
                  }
     response = requests.post(path,
-                             data=post_data, headers={"content-type" : "application/x-www-form-urlencoded"})
+                             data=post_data, headers={"content-type": "application/x-www-form-urlencoded"})
     token_json = response.json()
     print(token_json)
     return token_json["access_token"]

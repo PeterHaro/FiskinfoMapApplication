@@ -1,6 +1,21 @@
 var BarentswatchStylesRepository = function () {
     "use strict";
 
+    var maxFeatureCount = 0;
+    var aisVectorReference = null;
+
+    function createStyle(src, img) {
+        return new ol.style.Style({
+            image: new ol.style.Icon(({
+                anchor: [0.5, 0.96],
+                crossOrigin: 'anonymous',
+                src: src,
+                img: img,
+                imgSize: img ? [img.width, img.height] : undefined
+            }))
+        });
+    }
+
     var iceChartStyles = {
         "Close Drift Ice": [new ol.style.Style({
             fill: new ol.style.Fill({
@@ -198,7 +213,56 @@ var BarentswatchStylesRepository = function () {
         })], zIndex: 2
     };
 
-//TODO: AIS STYLES
+    function createAisSingleFeatureStyle(feature) {
+        if (!feature) {
+            return;
+        }
+        var featureName = "";
+        if (feature.values_.ShipType === 30) {
+            featureName = "fishing-vessel";
+        } else {
+            featureName = "non-fishing-vessel";
+        }
+        var style = aisStyles[featureName];
+        style.image_.setRotation(feature.values_.Cog);
+        return style;
+    }
+
+    var aisStyles = {
+        "fishing-vessel": new ol.style.Style({
+            image: new ol.style.Icon({
+                //anchor: [0.5, 46],
+                src: './boat-orange.svg',
+                // imgSize: [13, 29],
+            })
+        }),
+        "non-fishing-vessel": new ol.style.Style({
+            image: new ol.style.Icon({
+                //anchor: [0.5, 46],
+                src: './boat-grey.svg',
+                //imgSize: [13, 29],
+            })
+        })
+    };
+
+    var aisSelectionStyles = {
+        "fishing-vessel": new ol.style.Style({
+            image: new ol.style.RegularShape({
+                points: 5,
+                radius: 10,
+                radius2: 4,
+                angle: 0
+            })
+        }),
+        "non-fishing-vessel": new ol.style.Style({
+            image: new ol.style.RegularShape({
+                points: 5,
+                radius: 10,
+                radius2: 4,
+                angle: 0
+            })
+        })
+    };
 
     var iceChartStyleFunction = function (feature, resolution) {
         if (!feature) {
@@ -241,6 +305,76 @@ var BarentswatchStylesRepository = function () {
             return;
         }
         return coralReefStyles[feature.getGeometry().getType()];
+    };
+
+    var calculateClusterInfo = function (resolution) {
+        maxFeatureCount = 0;
+        var features = BarentswatchStylesRepository.GetAisVectorReference().getSource().getFeatures();
+        var feature, radius;
+        for (var i = features.length - 1; i >= 0; --i) {
+            feature = features[i];
+            var originalFeatures = feature.get('features');
+            var extent = ol.extent.createEmpty();
+            var j, jj;
+            for (j = 0, jj = originalFeatures.length; j < jj; ++j) {
+                ol.extent.extend(extent, originalFeatures[j].getGeometry().getExtent());
+            }
+            maxFeatureCount = Math.max(maxFeatureCount, jj);
+            radius = 0.25 * (ol.extent.getWidth(extent) + ol.extent.getHeight(extent)) /
+                resolution;
+            feature.set('radius', radius);
+        }
+    };
+
+    var textFill = new ol.style.Fill({
+        color: '#fff'
+    });
+    var textStroke = new ol.style.Stroke({
+        color: 'rgba(0, 0, 0, 0.6)',
+        width: 3
+    });
+    var oldAISClusterStylResolution;
+    var aisClusterStyleFunction = function (feature, resolution) {
+        if (resolution != oldAISClusterStylResolution) {
+            calculateClusterInfo(resolution);
+            oldAISClusterStylResolution = resolution;
+        }
+        var style;
+        var size = feature.get('features').length;
+        if (size > 1) {
+            style = new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: feature.get('radius'),
+                    fill: new ol.style.Fill({
+                        color: [255, 153, 0, Math.min(0.8, 0.4 + (size / maxFeatureCount))]
+                    })
+                }),
+                text: new ol.style.Text({
+                    text: size.toString(),
+                    fill: textFill,
+                    stroke: textStroke
+                })
+            });
+        } else {
+            var originalFeature = feature.get("features")[0];
+            style = createAisSingleFeatureStyle(originalFeature);
+        }
+        return style;
+    };
+
+    var aisStyleFunction = function (feature, resolution) {
+        if (!feature) {
+            return;
+        }
+        var featureName = "";
+        if (feature.values_.ShipType === 30) {
+            featureName = "fishing-vessel";
+        } else {
+            featureName = "non-fishing-vessel";
+        }
+        var style = aisStyles[featureName];
+        style.image_.setRotation(feature.values_.Cog);
+        return style;
     };
 
 // __BEGIN_SELECT_STYLES_
@@ -294,7 +428,28 @@ var BarentswatchStylesRepository = function () {
             }
         });
     };
+    var aisSelectionStyleFunction = function () {
+        return new ol.interaction.Select({
+            style: function (feature, resolution) {
+                console.log("Inside: aisSelectionStyleFunction");
+                console.log(feature.getGeometry());
+                return aisSelectionStyles[feature.getGeometry().getType()];
+            }
+        });
+    };
 // __END_SELECT_STYLES_
+
+    // GETTERS_AND_SETTERS
+    //TODO: HACK, FIGURE OUT HOW TO REMOVE THIS
+    function setAisVectorLayer(layer) {
+        this.aisVectorReference = layer;
+    }
+
+    function getAisVectorReference() {
+        return this.aisVectorReference;
+    }
+
+    // __END_GETTERS_AND_SETTERS
 
     return {
         BarentswatchIceChartStyle: iceChartStyleFunction,
@@ -310,7 +465,11 @@ var BarentswatchStylesRepository = function () {
         BarentswatchCoastalRegulationStyle: coastalRegulationsStyleFunction,
         BarentswatchCoastalRegulationSelectionStyle: coastalRegulationsSelectStyleFunction,
         BarentswatchCoralReefStyle: coralReefStyleFunction,
-        BarentswatchCoralReefSelectionStyle: coralReefSelectStyleFunction
+        BarentswatchCoralReefSelectionStyle: coralReefSelectStyleFunction,
+        BarentswatchAisStyle: aisClusterStyleFunction,
+        BarentswatchAisSelectionStyle: aisSelectionStyleFunction,
+        SetAisVectorLayer: setAisVectorLayer,
+        GetAisVectorReference: getAisVectorReference
     }
 
 }();
