@@ -4,7 +4,7 @@ function BarentswatchMapServicesCommunicator() {
     this._wms_url = "https://geo.barentswatch.no/geoserver/bw/wms";
     this._map_services_base_url = "https://www.barentswatch.no/api/v1/geodata/download/";
     this._ais_service_url = "https://www.barentswatch.no/api/v1/geodata/ais/positions?xmin=0&ymin=53&xmax=38&ymax=81";
-    this._tool_serive_url = "https://www.barentswatch.no/api/v1/geodata/download/fishingfacility?format=OLEX";
+    this._tool_serive_url = "https://www.barentswatch.no/api/v1/geodata/download/fishingfacility?format=JSON";
     this._map_services_format = "?format=JSON";
     this._format = "image/png";
     this._crossOriginPolicy = "anonymous";
@@ -86,30 +86,30 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
     }
 
     /* // OLD SAFE
-        var layer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
-                featureProjection: "EPSG:3857"
-            })
-        }),
-        style: BarentswatchStylesRepository.BarentswatchAisStyle,
-        title: "AIS"
-    });
+     var layer = new ol.layer.Vector({
+     source: new ol.source.Vector({
+     features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
+     featureProjection: "EPSG:3857"
+     })
+     }),
+     style: BarentswatchStylesRepository.BarentswatchAisStyle,
+     title: "AIS"
+     });
      */
 
     /*  //WORKING CLUSTER LAYER, NOW GET ON STYLES!
-        var layer = new ol.layer.Vector({
-        source: new ol.source.Cluster({
-            distance: 10,
-            source: new ol.source.Vector({
-                features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
-                    featureProjection: "EPSG:3857"
-                })
-            })
-        }),
-        style: BarentswatchStylesRepository.BarentswatchAisStyle,
-        title: "AIS"
-    });
+     var layer = new ol.layer.Vector({
+     source: new ol.source.Cluster({
+     distance: 10,
+     source: new ol.source.Vector({
+     features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
+     featureProjection: "EPSG:3857"
+     })
+     })
+     }),
+     style: BarentswatchStylesRepository.BarentswatchAisStyle,
+     title: "AIS"
+     });
      */
 
     var layer = new ol.layer.Vector({
@@ -132,12 +132,43 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
     }
 };
 
-BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer = function(data) {
-
+BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer = function (data) {
+    var layer = new ol.layer.Vector({
+        source: new ol.source.Cluster({
+            distance: 10,
+            source: new ol.source.Vector({
+                features: new ol.format.GeoJSON().readFeatures(data, {
+                    featureProjection: "EPSG:3857"
+                })
+            }),
+            geometryFunction: function(feature) {
+             var geometry = feature.getGeometry();
+             if(geometry.getType() === "Point") {
+                 return geometry;
+             } else if (geometry.getType() === "Polygon") {
+                 console.log("Polygon");
+                 return geometry.getInteriorPoint();
+             } else if (geometry.getType() === "LineString") {
+                 return new ol.geom.Point(geometry.getLastCoordinate());
+             } else {
+                 console.log(geometry.getType());
+                 return null;
+             }
+            }
+        }),
+        style: BarentswatchStylesRepository.BarentswatchToolStyle,
+        title: "Tools"
+    });
+    if (this.map != null) {
+        // SET STYLE
+        //BarentswatchStylesRepository
+        map.addLayer(layer);
+        //ADD SELECTION LISTENER
+    }
 };
 
 BarentswatchMapServicesCommunicator.prototype.createAuthenticatedServiceVectorLayer = function (token, query, authenticatedCall) {
-    if(authenticatedCall === "ais") {
+    if (authenticatedCall === "ais") {
         FiskInfoUtility.corsRequest(query, "GET", "", this.parseAuthenticatedAISVectorLayer, corsErrBack, token);
     } else if (authenticatedCall === "tools") {
         FiskInfoUtility.corsRequest(query, "GET", "", this.parseAuthenticatedToolsVectorLayer, corsErrBack, token);
@@ -193,16 +224,16 @@ BarentswatchMapServicesCommunicator.prototype.createAisVectorLayer = function (b
     }
 };
 
-BarentswatchMapServicesCommunicator.prototype._createAuthenticatedToolsLayer = function(token, that) {
+BarentswatchMapServicesCommunicator.prototype._createAuthenticatedToolsLayer = function (token, that) {
     that._token = token;
-    if(that !== null) {
+    if (that !== null) {
         that.createAuthenticatedServiceVectorLayer(that._token, that._tool_serive_url, "tools")
     } else {
         this.barentswatchCommunicator.createAuthenticatedServiceVectorLayer(this._token, this._tool_serive_url, "tools")
     }
 };
 
-BarentswatchMapServicesCommunicator.prototype.createToolsVectorLayer = function(backend) {
+BarentswatchMapServicesCommunicator.prototype.createToolsVectorLayer = function (backend) {
     if (this._token === "") {
         backend.getToken(this._createAuthenticatedToolsLayer, this);
     } else {

@@ -113,6 +113,9 @@ var displayFeatureInfo = function (pixel) {
         case "AIS":
             console.log("AIS FOUND");
             break;
+        case "Tools":
+            console.log("TOOL FOUND");
+            break;
         default:
             popupOverlay.setPosition(undefined);
             closer.blur();
@@ -131,8 +134,9 @@ function populateMap() {
     var legalMessages = barentswatchCommunicator.createApiServiceVectorLayer("jmelding", BarentswatchStylesRepository.BarentswatchJMessagesStyle);
     var coastalcodRegulations = barentswatchCommunicator.createApiServiceVectorLayer("coastalcodregulations", BarentswatchStylesRepository.BarentswatchCoastalRegulationStyle);
     var coralReef = barentswatchCommunicator.createApiServiceVectorLayer("coralreef", BarentswatchStylesRepository.BarentswatchCoralReefStyle);
-    //   var aisData = barentswatchCommunicator.fetchAISData();
+
     barentswatchCommunicator.createAisVectorLayer(backendCommunicator, BarentswatchStylesRepository.BarentswatchAisStyle);
+    barentswatchCommunicator.createToolsVectorLayer(backendCommunicator);
 
 
     map.addLayer(iceChartLayer);

@@ -4,18 +4,6 @@ var BarentswatchStylesRepository = function () {
     var maxFeatureCount = 0;
     var aisVectorReference = null;
 
-    function createStyle(src, img) {
-        return new ol.style.Style({
-            image: new ol.style.Icon(({
-                anchor: [0.5, 0.96],
-                crossOrigin: 'anonymous',
-                src: src,
-                img: img,
-                imgSize: img ? [img.width, img.height] : undefined
-            }))
-        });
-    }
-
     var iceChartStyles = {
         "Close Drift Ice": [new ol.style.Style({
             fill: new ol.style.Fill({
@@ -264,6 +252,26 @@ var BarentswatchStylesRepository = function () {
         })
     };
 
+    var toolStyles = {
+        "Point": [new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                fill: new ol.style.Fill({
+                    color: "rgba(0, 255, 0, 0.8)"
+                }),
+                stroke: new ol.style.Stroke({
+                    color: "rgba(51, 153, 255, 1)", width: 2
+                })
+            })
+        })],
+        "LineString": new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#ffcc33',
+                width: 2
+            })
+        })
+    };
+
     var iceChartStyleFunction = function (feature, resolution) {
         if (!feature) {
             return;
@@ -362,19 +370,11 @@ var BarentswatchStylesRepository = function () {
         return style;
     };
 
-    var aisStyleFunction = function (feature, resolution) {
+    var toolsStyleFunction = function (feature, resolution) {
         if (!feature) {
             return;
         }
-        var featureName = "";
-        if (feature.values_.ShipType === 30) {
-            featureName = "fishing-vessel";
-        } else {
-            featureName = "non-fishing-vessel";
-        }
-        var style = aisStyles[featureName];
-        style.image_.setRotation(feature.values_.Cog);
-        return style;
+        return toolStyles[feature.getGeometry().getType()];
     };
 
 // __BEGIN_SELECT_STYLES_
@@ -469,7 +469,8 @@ var BarentswatchStylesRepository = function () {
         BarentswatchAisStyle: aisClusterStyleFunction,
         BarentswatchAisSelectionStyle: aisSelectionStyleFunction,
         SetAisVectorLayer: setAisVectorLayer,
-        GetAisVectorReference: getAisVectorReference
+        GetAisVectorReference: getAisVectorReference,
+        BarentswatchToolStyle: toolsStyleFunction
     }
 
 }();
