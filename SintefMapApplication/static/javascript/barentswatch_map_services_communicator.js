@@ -114,7 +114,7 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
 
     var layer = new ol.layer.Vector({
         source: new ol.source.Cluster({
-            distance: 10,
+            distance: 15,
             source: new ol.source.Vector({
                 features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
                     featureProjection: "EPSG:3857"
@@ -161,9 +161,9 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer
     });
     if (this.map != null) {
         // SET STYLE
-        //BarentswatchStylesRepository
+        BarentswatchStylesRepository.SetToolsVectorLayer(layer);
         map.addLayer(layer);
-        //ADD SELECTION LISTENER
+       // map.addInteraction(BarentswatchStylesRepository.BarentswatchToolSelectionStyle());
     }
 };
 
@@ -196,7 +196,7 @@ BarentswatchMapServicesCommunicator.prototype.createClusturedApiServiceVectorLay
     });
 };
 
-BarentswatchMapServicesCommunicator.prototype._createClusteredSource = function (_distance, _source) {
+    BarentswatchMapServicesCommunicator.prototype._createClusteredSource = function (_distance, _source) {
     return new ol.source.Cluster({
         distance: parseInt(_distance, 10),
         source: _source

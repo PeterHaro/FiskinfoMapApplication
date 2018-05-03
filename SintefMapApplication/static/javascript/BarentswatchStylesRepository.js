@@ -3,6 +3,7 @@ var BarentswatchStylesRepository = function () {
 
     var maxFeatureCount = 0;
     var aisVectorReference = null;
+    var toolsVectorReference = null;
 
     var iceChartStyles = {
         "Close Drift Ice": [new ol.style.Style({
@@ -216,6 +217,13 @@ var BarentswatchStylesRepository = function () {
         return style;
     }
 
+    function createToolSingleFeatureStyle(feature) {
+        if (!feature) {
+            return;
+        }
+        return toolStyles[feature.getGeometry().getType()];
+    }
+
     var aisStyles = {
         "fishing-vessel": new ol.style.Style({
             image: new ol.style.Icon({
@@ -226,9 +234,7 @@ var BarentswatchStylesRepository = function () {
         }),
         "non-fishing-vessel": new ol.style.Style({
             image: new ol.style.Icon({
-                //anchor: [0.5, 46],
-                src: './boat-grey.svg',
-                //imgSize: [13, 29],
+                src: './boat-grey.svg'
             })
         })
     };
@@ -265,8 +271,29 @@ var BarentswatchStylesRepository = function () {
             })
         })],
         "LineString": new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: "rgba(0, 255, 0, 0.8)"
+            }),
             stroke: new ol.style.Stroke({
-                color: '#ffcc33',
+                color: "rgba(255, 0, 0, 1)", width: 2
+            })
+        })
+    };
+    var toolSelectionStyles = {
+        "Point": [new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                fill: new ol.style.Fill({
+                    color: "rgba(255, 255, 255, 0.8)"
+                }),
+                stroke: new ol.style.Stroke({
+                    color: "rgba(51, 153, 255, 1)", width: 2
+                })
+            })
+        })],
+        "LineString": new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: '#AAAA',
                 width: 2
             })
         })
@@ -315,9 +342,14 @@ var BarentswatchStylesRepository = function () {
         return coralReefStyles[feature.getGeometry().getType()];
     };
 
-    var calculateClusterInfo = function (resolution) {
+    var calculateClusterInfo = function (resolution, clusterType) {
         maxFeatureCount = 0;
-        var features = BarentswatchStylesRepository.GetAisVectorReference().getSource().getFeatures();
+        var features = null;
+        if (clusterType === "tools") {
+            features = BarentswatchStylesRepository.GetToolsVectorReference().getSource().getFeatures();
+        } else if (clusterType === "ais") {
+            features = BarentswatchStylesRepository.GetAisVectorReference().getSource().getFeatures();
+        }
         var feature, radius;
         for (var i = features.length - 1; i >= 0; --i) {
             feature = features[i];
@@ -341,11 +373,17 @@ var BarentswatchStylesRepository = function () {
         color: 'rgba(0, 0, 0, 0.6)',
         width: 3
     });
-    var oldAISClusterStylResolution;
+    var invisibleFill = new ol.style.Fill({
+        color: 'rgba(255, 255, 255, 0.01)'
+    });
+
+
+    var oldAISClusterStyleResolution;
+    var oldToolClusterStyleResolution;
     var aisClusterStyleFunction = function (feature, resolution) {
-        if (resolution != oldAISClusterStylResolution) {
-            calculateClusterInfo(resolution);
-            oldAISClusterStylResolution = resolution;
+        if (resolution != oldAISClusterStyleResolution) {
+            calculateClusterInfo(resolution, "ais");
+            oldAISClusterStyleResolution = resolution;
         }
         var style;
         var size = feature.get('features').length;
@@ -362,7 +400,11 @@ var BarentswatchStylesRepository = function () {
                     fill: textFill,
                     stroke: textStroke
                 })
+            });            var extent = new ol.extent.createEmpty();
+            feature.get('features').forEach(function (f, index, array) {
+                ol.extent.extend(extent, f.getGeometry().getExtent());
             });
+            map.getView().fit(extent, map.getSize());
         } else {
             var originalFeature = feature.get("features")[0];
             style = createAisSingleFeatureStyle(originalFeature);
@@ -370,11 +412,48 @@ var BarentswatchStylesRepository = function () {
         return style;
     };
 
-    var toolsStyleFunction = function (feature, resolution) {
-        if (!feature) {
-            return;
+    var _aisSelectionStyleFunction = function (feature) {
+        var styles = [new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: feature.get('radius'),
+                fill: invisibleFill
+            })
+        })];
+        var originalFeatures = feature.get('features');
+        var originalFeature;
+        for (var i = originalFeatures.length - 1; i >= 0; --i) {
+            originalFeature = originalFeatures[i];
+            styles.push(createAisSingleFeatureStyle(originalFeature));
         }
-        return toolStyles[feature.getGeometry().getType()];
+        return styles;
+    };
+
+    var toolsClusterStyleFunction = function (feature, resolution) {
+        if (resolution != oldToolClusterStyleResolution) {
+            calculateClusterInfo(resolution, "tools");
+            oldToolClusterStyleResolution = resolution;
+        }
+        var style;
+        var size = feature.get('features').length;
+        if (size > 1) {
+            style = new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: feature.get('radius'),
+                    fill: new ol.style.Fill({
+                        color: [1, 255, 132, Math.min(0.8, 0.4 + (size / maxFeatureCount))]
+                    })
+                }),
+                text: new ol.style.Text({
+                    text: size.toString(),
+                    fill: textFill,
+                    stroke: textStroke
+                })
+            });
+        } else {
+            var originalFeature = feature.get("features")[0];
+            style = createToolSingleFeatureStyle(originalFeature);
+        }
+        return style;
     };
 
 // __BEGIN_SELECT_STYLES_
@@ -430,10 +509,18 @@ var BarentswatchStylesRepository = function () {
     };
     var aisSelectionStyleFunction = function () {
         return new ol.interaction.Select({
+            condition: function (evt) {
+                return evt.type == 'singleclick';
+            },
+            style: _aisSelectionStyleFunction
+        });
+    };
+    var toolSelectionStyleFunction = function () {
+        return new ol.interaction.Select({
             style: function (feature, resolution) {
-                console.log("Inside: aisSelectionStyleFunction");
+                console.log("Inside: toolSelectionStyleFunction");
                 console.log(feature.getGeometry());
-                return aisSelectionStyles[feature.getGeometry().getType()];
+                return toolSelectionStyles[feature.getGeometry().getType()];
             }
         });
     };
@@ -441,12 +528,21 @@ var BarentswatchStylesRepository = function () {
 
     // GETTERS_AND_SETTERS
     //TODO: HACK, FIGURE OUT HOW TO REMOVE THIS
+    // These are used to style the clustering layers, in order to get correct references
     function setAisVectorLayer(layer) {
         this.aisVectorReference = layer;
     }
 
     function getAisVectorReference() {
         return this.aisVectorReference;
+    }
+
+    function setToolVectorLayer(layer) {
+        this.toolsVectorReference = layer;
+    }
+
+    function getToolVectorLayeer() {
+        return this.toolsVectorReference;
     }
 
     // __END_GETTERS_AND_SETTERS
@@ -470,7 +566,10 @@ var BarentswatchStylesRepository = function () {
         BarentswatchAisSelectionStyle: aisSelectionStyleFunction,
         SetAisVectorLayer: setAisVectorLayer,
         GetAisVectorReference: getAisVectorReference,
-        BarentswatchToolStyle: toolsStyleFunction
+        BarentswatchToolStyle: toolsClusterStyleFunction,
+        SetToolsVectorLayer: setToolVectorLayer,
+        GetToolsVectorReference: getToolVectorLayeer,
+        BarentswatchToolSelectionStyle: toolSelectionStyleFunction
     }
 
 }();
