@@ -400,11 +400,7 @@ var BarentswatchStylesRepository = function () {
                     fill: textFill,
                     stroke: textStroke
                 })
-            });            var extent = new ol.extent.createEmpty();
-            feature.get('features').forEach(function (f, index, array) {
-                ol.extent.extend(extent, f.getGeometry().getExtent());
             });
-            map.getView().fit(extent, map.getSize());
         } else {
             var originalFeature = feature.get("features")[0];
             style = createAisSingleFeatureStyle(originalFeature);
@@ -412,20 +408,21 @@ var BarentswatchStylesRepository = function () {
         return style;
     };
 
-    var _aisSelectionStyleFunction = function (feature) {
-        var styles = [new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: feature.get('radius'),
-                fill: invisibleFill
-            })
-        })];
-        var originalFeatures = feature.get('features');
-        var originalFeature;
-        for (var i = originalFeatures.length - 1; i >= 0; --i) {
-            originalFeature = originalFeatures[i];
-            styles.push(createAisSingleFeatureStyle(originalFeature));
-        }
-        return styles;
+    var _aisSelectionStyleFunction = function (feature, resolution) {
+        var extent = new ol.extent.createEmpty();
+        feature.get('features').forEach(function (f, index, array) {
+            ol.extent.extend(extent, f.getGeometry().getExtent());
+        });
+
+        map.getView().fit(extent, map.getSize());
+        aisClusterStyleFunction(feature, resolution);
+        map.getInteractions().forEach(function (interaction) {
+            if (interaction instanceof ol.interaction.Select) {
+                if (interaction.featureOverlay_.style_.name === "_aisSelectionStyleFunction") {
+                    interaction.getFeatures().clear();
+                }
+            }
+        });
     };
 
     var toolsClusterStyleFunction = function (feature, resolution) {
@@ -512,7 +509,8 @@ var BarentswatchStylesRepository = function () {
             condition: function (evt) {
                 return evt.type == 'singleclick';
             },
-            style: _aisSelectionStyleFunction
+            style: _aisSelectionStyleFunction,
+            name: "Ais-selection"
         });
     };
     var toolSelectionStyleFunction = function () {

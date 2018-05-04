@@ -141,19 +141,19 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer
                     featureProjection: "EPSG:3857"
                 })
             }),
-            geometryFunction: function(feature) {
-             var geometry = feature.getGeometry();
-             if(geometry.getType() === "Point") {
-                 return geometry;
-             } else if (geometry.getType() === "Polygon") {
-                 console.log("Polygon");
-                 return geometry.getInteriorPoint();
-             } else if (geometry.getType() === "LineString") {
-                 return new ol.geom.Point(geometry.getLastCoordinate());
-             } else {
-                 console.log(geometry.getType());
-                 return null;
-             }
+            geometryFunction: function (feature) {
+                var geometry = feature.getGeometry();
+                if (geometry.getType() === "Point") {
+                    return geometry;
+                } else if (geometry.getType() === "Polygon") {
+                    console.log("Polygon");
+                    return geometry.getInteriorPoint();
+                } else if (geometry.getType() === "LineString") {
+                    return new ol.geom.Point(geometry.getLastCoordinate());
+                } else {
+                    console.log(geometry.getType());
+                    return null;
+                }
             }
         }),
         style: BarentswatchStylesRepository.BarentswatchToolStyle,
@@ -163,7 +163,7 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer
         // SET STYLE
         BarentswatchStylesRepository.SetToolsVectorLayer(layer);
         map.addLayer(layer);
-       // map.addInteraction(BarentswatchStylesRepository.BarentswatchToolSelectionStyle());
+        // map.addInteraction(BarentswatchStylesRepository.BarentswatchToolSelectionStyle());
     }
 };
 
@@ -196,7 +196,7 @@ BarentswatchMapServicesCommunicator.prototype.createClusturedApiServiceVectorLay
     });
 };
 
-    BarentswatchMapServicesCommunicator.prototype._createClusteredSource = function (_distance, _source) {
+BarentswatchMapServicesCommunicator.prototype._createClusteredSource = function (_distance, _source) {
     return new ol.source.Cluster({
         distance: parseInt(_distance, 10),
         source: _source

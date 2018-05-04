@@ -139,7 +139,7 @@ function populateMap() {
     barentswatchCommunicator.createToolsVectorLayer(backendCommunicator);
 
 
-    map.addLayer(iceChartLayer);
+        map.addLayer(iceChartLayer);
     map.addLayer(ongoingSeismic);
     map.addLayer(plannedSeismic);
     map.addLayer(facilityLayer);
