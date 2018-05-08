@@ -221,6 +221,15 @@ var BarentswatchStylesRepository = function () {
         if (!feature) {
             return;
         }
+        if (feature.getGeometry().getType() === "LineString") {
+            var style = new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: '#EAE911',
+                    width: 2
+                })
+            });
+            return style;
+        }
         return toolStyles[feature.getGeometry().getType()];
     }
 
@@ -239,25 +248,6 @@ var BarentswatchStylesRepository = function () {
         })
     };
 
-    var aisSelectionStyles = {
-        "fishing-vessel": new ol.style.Style({
-            image: new ol.style.RegularShape({
-                points: 5,
-                radius: 10,
-                radius2: 4,
-                angle: 0
-            })
-        }),
-        "non-fishing-vessel": new ol.style.Style({
-            image: new ol.style.RegularShape({
-                points: 5,
-                radius: 10,
-                radius2: 4,
-                angle: 0
-            })
-        })
-    };
-
     var toolStyles = {
         "Point": [new ol.style.Style({
             image: new ol.style.Circle({
@@ -270,33 +260,14 @@ var BarentswatchStylesRepository = function () {
                 })
             })
         })],
-        "LineString": new ol.style.Style({
+        "LineString": [new ol.style.Style({
             fill: new ol.style.Fill({
                 color: "rgba(0, 255, 0, 0.8)"
             }),
             stroke: new ol.style.Stroke({
                 color: "rgba(255, 0, 0, 1)", width: 2
             })
-        })
-    };
-    var toolSelectionStyles = {
-        "Point": [new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 5,
-                fill: new ol.style.Fill({
-                    color: "rgba(255, 255, 255, 0.8)"
-                }),
-                stroke: new ol.style.Stroke({
-                    color: "rgba(51, 153, 255, 1)", width: 2
-                })
-            })
-        })],
-        "LineString": new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: '#AAAA',
-                width: 2
-            })
-        })
+        })]
     };
 
     var iceChartStyleFunction = function (feature, resolution) {
@@ -373,10 +344,6 @@ var BarentswatchStylesRepository = function () {
         color: 'rgba(0, 0, 0, 0.6)',
         width: 3
     });
-    var invisibleFill = new ol.style.Fill({
-        color: 'rgba(255, 255, 255, 0.01)'
-    });
-
 
     var oldAISClusterStyleResolution;
     var oldToolClusterStyleResolution;
@@ -404,6 +371,9 @@ var BarentswatchStylesRepository = function () {
         } else {
             var originalFeature = feature.get("features")[0];
             style = createAisSingleFeatureStyle(originalFeature);
+            if(originalFeature.getGeometry().getType() === "LineString") {
+                originalFeature.setStyle(style);
+            }
         }
         return style;
     };
@@ -419,6 +389,22 @@ var BarentswatchStylesRepository = function () {
         map.getInteractions().forEach(function (interaction) {
             if (interaction instanceof ol.interaction.Select) {
                 if (interaction.featureOverlay_.style_.name === "_aisSelectionStyleFunction") {
+                    interaction.getFeatures().clear();
+                }
+            }
+        });
+    };
+    var _toolsSelectionStyleFunction = function (feature, resolution) {
+        var extent = new ol.extent.createEmpty();
+        feature.get('features').forEach(function (f, index, array) {
+            ol.extent.extend(extent, f.getGeometry().getExtent());
+        });
+
+        map.getView().fit(extent, map.getSize());
+        toolsClusterStyleFunction(feature, resolution);
+        map.getInteractions().forEach(function (interaction) {
+            if (interaction instanceof ol.interaction.Select) {
+                if (interaction.featureOverlay_.style_.name === "_toolsSelectionStyleFunction") {
                     interaction.getFeatures().clear();
                 }
             }
@@ -515,11 +501,11 @@ var BarentswatchStylesRepository = function () {
     };
     var toolSelectionStyleFunction = function () {
         return new ol.interaction.Select({
-            style: function (feature, resolution) {
-                console.log("Inside: toolSelectionStyleFunction");
-                console.log(feature.getGeometry());
-                return toolSelectionStyles[feature.getGeometry().getType()];
-            }
+            condition: function (evt) {
+                return evt.type === "singleclick";
+            },
+            style: _toolsSelectionStyleFunction,
+            name: "Tool-selection"
         });
     };
 // __END_SELECT_STYLES_

@@ -85,33 +85,6 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
         });
     }
 
-    /* // OLD SAFE
-     var layer = new ol.layer.Vector({
-     source: new ol.source.Vector({
-     features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
-     featureProjection: "EPSG:3857"
-     })
-     }),
-     style: BarentswatchStylesRepository.BarentswatchAisStyle,
-     title: "AIS"
-     });
-     */
-
-    /*  //WORKING CLUSTER LAYER, NOW GET ON STYLES!
-     var layer = new ol.layer.Vector({
-     source: new ol.source.Cluster({
-     distance: 10,
-     source: new ol.source.Vector({
-     features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
-     featureProjection: "EPSG:3857"
-     })
-     })
-     }),
-     style: BarentswatchStylesRepository.BarentswatchAisStyle,
-     title: "AIS"
-     });
-     */
-
     var layer = new ol.layer.Vector({
         source: new ol.source.Cluster({
             distance: 15,
@@ -135,37 +108,42 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
 BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer = function (data) {
     var layer = new ol.layer.Vector({
         source: new ol.source.Cluster({
-            distance: 10,
+            distance: 15,
             source: new ol.source.Vector({
                 features: new ol.format.GeoJSON().readFeatures(data, {
                     featureProjection: "EPSG:3857"
                 })
             }),
             geometryFunction: function (feature) {
-                var geometry = feature.getGeometry();
-                if (geometry.getType() === "Point") {
-                    return geometry;
-                } else if (geometry.getType() === "Polygon") {
-                    console.log("Polygon");
-                    return geometry.getInteriorPoint();
-                } else if (geometry.getType() === "LineString") {
-                    return new ol.geom.Point(geometry.getLastCoordinate());
-                } else {
-                    console.log(geometry.getType());
-                    return null;
-                }
+                return new ol.geom.Point(ol.extent.getCenter(feature.getGeometry().getExtent()));
             }
         }),
         style: BarentswatchStylesRepository.BarentswatchToolStyle,
         title: "Tools"
     });
     if (this.map != null) {
-        // SET STYLE
         BarentswatchStylesRepository.SetToolsVectorLayer(layer);
         map.addLayer(layer);
-        // map.addInteraction(BarentswatchStylesRepository.BarentswatchToolSelectionStyle());
+        map.addInteraction(BarentswatchStylesRepository.BarentswatchToolSelectionStyle());
     }
 };
+
+/*BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer = function (data) {
+    return new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: new ol.format.GeoJSON().readFeatures(data, {
+                featureProjection: "EPSG:3857"
+            })
+        }),
+        style: BarentswatchStylesRepository.BarentswatchToolStyle,
+        title: "Tools"
+    });
+        if (this.map != null) {
+        BarentswatchStylesRepository.SetToolsVectorLayer(layer);
+        map.addLayer(layer);
+        //map.addInteraction(BarentswatchStylesRepository.BarentswatchToolSelectionStyle());
+    }
+};*/
 
 BarentswatchMapServicesCommunicator.prototype.createAuthenticatedServiceVectorLayer = function (token, query, authenticatedCall) {
     if (authenticatedCall === "ais") {

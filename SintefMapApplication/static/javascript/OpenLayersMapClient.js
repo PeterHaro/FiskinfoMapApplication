@@ -115,6 +115,7 @@ var displayFeatureInfo = function (pixel) {
             break;
         case "Tools":
             console.log("TOOL FOUND");
+            console.log(features[features.length - 1].getGeometry().getType());
             break;
         default:
             popupOverlay.setPosition(undefined);
@@ -135,7 +136,7 @@ function populateMap() {
     var coastalcodRegulations = barentswatchCommunicator.createApiServiceVectorLayer("coastalcodregulations", BarentswatchStylesRepository.BarentswatchCoastalRegulationStyle);
     var coralReef = barentswatchCommunicator.createApiServiceVectorLayer("coralreef", BarentswatchStylesRepository.BarentswatchCoralReefStyle);
 
-    barentswatchCommunicator.createAisVectorLayer(backendCommunicator, BarentswatchStylesRepository.BarentswatchAisStyle);
+    barentswatchCommunicator.createAisVectorLayer(backendCommunicator, null);
     barentswatchCommunicator.createToolsVectorLayer(backendCommunicator);
 
 
