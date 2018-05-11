@@ -226,7 +226,8 @@ var BarentswatchStylesRepository = function () {
                 stroke: new ol.style.Stroke({
                     color: '#EAE911',
                     width: 2
-                })
+                }),
+                geometry: feature.getGeometry()
             });
             return style;
         }
@@ -371,9 +372,6 @@ var BarentswatchStylesRepository = function () {
         } else {
             var originalFeature = feature.get("features")[0];
             style = createAisSingleFeatureStyle(originalFeature);
-            if(originalFeature.getGeometry().getType() === "LineString") {
-                originalFeature.setStyle(style);
-            }
         }
         return style;
     };
@@ -411,15 +409,20 @@ var BarentswatchStylesRepository = function () {
         });
     };
 
+    var toolsStyleCache = {};
     var toolsClusterStyleFunction = function (feature, resolution) {
         if (resolution != oldToolClusterStyleResolution) {
             calculateClusterInfo(resolution, "tools");
             oldToolClusterStyleResolution = resolution;
         }
+
         var style;
         var size = feature.get('features').length;
         if (size > 1) {
-            style = new ol.style.Style({
+            style = toolsStyleCache[size];
+            if(!style) {
+                var color = size > 15 ? "192,0,0" : size > 8 ? "255,128,0" : "0,128,0"
+                style = new ol.style.Style({
                 image: new ol.style.Circle({
                     radius: feature.get('radius'),
                     fill: new ol.style.Fill({
@@ -432,6 +435,7 @@ var BarentswatchStylesRepository = function () {
                     stroke: textStroke
                 })
             });
+            }
         } else {
             var originalFeature = feature.get("features")[0];
             style = createToolSingleFeatureStyle(originalFeature);
