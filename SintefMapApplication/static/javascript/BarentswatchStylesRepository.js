@@ -5,6 +5,14 @@ var BarentswatchStylesRepository = function () {
     var aisVectorReference = null;
     var toolsVectorReference = null;
 
+    var textFill = new ol.style.Fill({
+        color: '#fff'
+    });
+    var textStroke = new ol.style.Stroke({
+        color: 'rgba(0, 0, 0, 0.6)',
+        width: 3
+    });
+
     var iceChartStyles = {
         "Close Drift Ice": [new ol.style.Style({
             fill: new ol.style.Fill({
@@ -268,7 +276,50 @@ var BarentswatchStylesRepository = function () {
             stroke: new ol.style.Stroke({
                 color: "rgba(255, 0, 0, 1)", width: 2
             })
-        })]
+        })],
+        'line': new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: 'red'}),
+                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                points: 3,
+                radius: 10
+            })
+        }),
+        'teine': new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({
+                    color: "rgba(255, 204, 102, 1)"
+                }),
+                stroke: new ol.style.Stroke({color: 'white', width: 2}),
+                points: 3,
+                radius: 10
+            })
+        }),
+        'sensorkabel': new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: 'green'}),
+                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                points: 3,
+                radius: 10
+            })
+        }),
+        'garn': new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({
+                    color: "rgba(0, 0, 153, 1)"
+                }),
+                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                points: 3,
+                radius: 10,
+                rotation: 0,
+                angle: 0
+            })/*, // WORKS
+            text: new ol.style.Text({
+                text: "10",
+                fill: textFill,
+                stroke: textStroke
+            })*/
+        })
     };
 
     var iceChartStyleFunction = function (feature, resolution) {
@@ -332,19 +383,11 @@ var BarentswatchStylesRepository = function () {
                 ol.extent.extend(extent, originalFeatures[j].getGeometry().getExtent());
             }
             maxFeatureCount = Math.max(maxFeatureCount, jj);
-            radius = 0.25 * (ol.extent.getWidth(extent) + ol.extent.getHeight(extent)) /
+            radius = 0.35 * (ol.extent.getWidth(extent) + ol.extent.getHeight(extent)) /
                 resolution;
             feature.set('radius', radius);
         }
     };
-
-    var textFill = new ol.style.Fill({
-        color: '#fff'
-    });
-    var textStroke = new ol.style.Stroke({
-        color: 'rgba(0, 0, 0, 0.6)',
-        width: 3
-    });
 
     var oldAISClusterStyleResolution;
     var oldToolClusterStyleResolution;
@@ -359,8 +402,12 @@ var BarentswatchStylesRepository = function () {
             style = new ol.style.Style({
                 image: new ol.style.Circle({
                     radius: feature.get('radius'),
+                    stroke: new ol.style.Stroke({
+                        color: "rgba(255, 255, 255, 1)",
+                        width: 2
+                    }),
                     fill: new ol.style.Fill({
-                        color: [255, 153, 0, Math.min(0.8, 0.4 + (size / maxFeatureCount))]
+                        color: [255, 153, 0, 1]
                     })
                 }),
                 text: new ol.style.Text({
@@ -419,22 +466,153 @@ var BarentswatchStylesRepository = function () {
         var style;
         var size = feature.get('features').length;
         if (size > 1) {
+            // Wish me luck
+            var features = feature.get("features");
+            var isSameTools = true;
+            var toolToCheck = feature.get("features")[0].values_.tooltypename;
+            for (var i = 0; i < size; i++) {
+                if (features[i].values_.tooltypename !== toolToCheck) {
+                    isSameTools = false;
+                    break;
+                }
+            }
+
+            if (isSameTools) {
+                switch (toolToCheck) {
+                    case "Nets":
+                        var garnStyle = new ol.style.Style({
+                            image: new ol.style.RegularShape({
+                                fill: new ol.style.Fill({
+                                    color: "rgba(0, 51, 204, 1)"
+                                }),
+                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                                points: 3,
+                                radius: 20,
+                                rotation: 0,
+                                angle: 0
+                            }),
+                            text: new ol.style.Text({
+                                text: size.toString(),
+                                fill: textFill,
+                                stroke: textStroke
+                            })
+                        });
+                        //TODO: FIGUREOUT WHY THIS DOESNT WORK
+                        /*var garnStyle = toolStyles["garn"];
+                        garnStyle.text = new ol.style.Text({
+                            text: size.toString(),
+                            fill: textFill,
+                            stroke: textStroke
+                        });*/
+                        return garnStyle;
+                    case "Crab pot":
+                        return new ol.style.Style({
+                            image: new ol.style.RegularShape({
+                                fill: new ol.style.Fill({
+                                    color: "rgba(255, 204, 102, 1)"
+                                }),
+                                stroke: new ol.style.Stroke({color: 'white', width: 2}),
+                                points: 3,
+                                radius: 20
+                            }),
+                            text: new ol.style.Text({
+                                text: size.toString(),
+                                fill: textFill,
+                                stroke: textStroke
+                            })
+                        });
+                    case "Mooring system":
+                        return new ol.style.Style({
+                            image: new ol.style.RegularShape({
+                                fill: new ol.style.Fill({color: 'pink'}),
+                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                                points: 3,
+                                radius: 20
+                            }),
+                            text: new ol.style.Text({
+                                text: size.toString(),
+                                fill: textFill,
+                                stroke: textStroke
+                            })
+                        });
+                    case "Long line":
+                        return new ol.style.Style({
+                            image: new ol.style.RegularShape({
+                                fill: new ol.style.Fill({color: 'red'}),
+                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                                points: 3,
+                                radius: 20
+                            }),
+                            text: new ol.style.Text({
+                                text: size.toString(),
+                                fill: textFill,
+                                stroke: textStroke
+                            })
+                        });
+                    case "Danish- / Purse- Seine":
+                        return new ol.style.Style({
+                            image: new ol.style.RegularShape({
+                                fill: new ol.style.Fill({color: 'purple'}),
+                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                                points: 3,
+                                radius: 20
+                            }),
+                            text: new ol.style.Text({
+                                text: size.toString(),
+                                fill: textFill,
+                                stroke: textStroke
+                            })
+                        });
+                    case "Sensor / Cable":
+                        return new ol.style.Style({
+                            image: new ol.style.RegularShape({
+                                fill: new ol.style.Fill({color: 'green'}),
+                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                                points: 3,
+                                radius: 20
+                            }),
+                            text: new ol.style.Text({
+                                text: size.toString(),
+                                fill: textFill,
+                                stroke: textStroke
+                            })
+                        });
+                    case "Unknown":
+                        return new ol.style.Style({
+                            image: new ol.style.RegularShape({
+                                fill: new ol.style.Fill({color: 'rgba(105,105,105, 1)'}),
+                                stroke: new ol.style.Stroke({color: 'white', width: 2}),
+                                points: 3,
+                                radius: 20
+                            }),
+                            text: new ol.style.Text({
+                                text: size.toString(),
+                                fill: textFill,
+                                stroke: textStroke
+                            })
+                        });
+                    default:
+                        console.log("SAYWHAAAT");
+                        console.log(toolToCheck);
+                        break;
+                }
+            }
+
             style = toolsStyleCache[size];
-            if(!style) {
-                var color = size > 15 ? "192,0,0" : size > 8 ? "255,128,0" : "0,128,0"
+            if (!style) {
                 style = new ol.style.Style({
-                image: new ol.style.Circle({
-                    radius: feature.get('radius'),
-                    fill: new ol.style.Fill({
-                        color: [1, 255, 132, Math.min(0.8, 0.4 + (size / maxFeatureCount))]
+                    image: new ol.style.Circle({
+                        radius: feature.get('radius'),
+                        fill: new ol.style.Fill({
+                            color: [1, 255, 132, Math.min(0.8, 0.4 + 1)]
+                        })
+                    }),
+                    text: new ol.style.Text({
+                        text: size.toString(),
+                        fill: textFill,
+                        stroke: textStroke
                     })
-                }),
-                text: new ol.style.Text({
-                    text: size.toString(),
-                    fill: textFill,
-                    stroke: textStroke
-                })
-            });
+                });
             }
         } else {
             var originalFeature = feature.get("features")[0];

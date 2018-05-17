@@ -20,7 +20,9 @@ class CSSGenerator(object):
         self.is_debug = is_debug
         self.yui_compressor_path = yui_compressor_path
         self.external_css_repositories = []
-        self.scss_filename = configuration_file["app_name"] + ".scss"
+        with open(configuration_file) as default_config:
+            self.configuration_file = json.load(default_config)
+        self.scss_filename = self.configuration_file["app_name"] + ".scss"
 
     def add_external_css_repository(self, repository_path):
         self.external_css_repositories.append(repository_path)
@@ -87,5 +89,5 @@ class CSSGenerator(object):
 
 
 if __name__ == "__main__":
-    CSSGenerator = CSSGenerator()
+    CSSGenerator = CSSGenerator(configuration_file="configuration.json")
     CSSGenerator.run()

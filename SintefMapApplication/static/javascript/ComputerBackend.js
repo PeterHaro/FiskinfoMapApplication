@@ -30,7 +30,8 @@ ComputerBackend.prototype.showBottmsheet = function (feature) {
 
     switch (feature._type) {
         case BarentswatchApiObjectTypes.TOOL:
-            return new Tool();
+            content = this._showToolBottomsheet(feature);
+            break;
         case BarentswatchApiObjectTypes.SEABOTTOM_INSTALLATION:
             content = this._showSubsurfaceFacilityBottomsheet(feature);
             break;
@@ -48,6 +49,9 @@ ComputerBackend.prototype.showBottmsheet = function (feature) {
         case BarentswatchApiObjectTypes.PLANNED_SEISMIC:
             content = this._buildSeismicBottomsheetText(feature);
             break;
+        case BarentswatchApiObjectTypes.AIS:
+            content = this._createAisBottomsheet(feature);
+            break;
         default:
             return null;
     }
@@ -60,6 +64,46 @@ ComputerBackend.prototype.showBottmsheet = function (feature) {
 
 ComputerBackend.prototype._createIceChartConsentrationContent = function (feature) {
 
+};
+
+ComputerBackend.prototype._showToolBottomsheet = function (feature) {
+    var retval = "";
+    retval += this._httpBuilder.createModalIconLine("date_range", "Tid i havet", feature.getTimePlacedInOcean());
+    retval += this._httpBuilder.createModalIconLine("date_range", "Satt", feature.getFormattedTimeSetInOcean());
+    retval += this._httpBuilder.createModalIconLine("place", "Posisjon", FiskInfoUtility.ddToDms(feature._position[1], feature._position[0]));
+    //TODO: MARINOGRAM HER
+
+    retval += this._httpBuilder.getSelfContainedHeading(6, "Om Fartøyet");
+    retval += "<div class='divider'></div>";
+
+    retval += this._httpBuilder.createTitleLineWithStrongText("Fartøy", feature._vesselname);
+    retval += this._httpBuilder.createTitleLineWithStrongText("Telefon", feature._vesselphone);
+    retval += this._httpBuilder.createTitleLineWithStrongText("Kallesignal(IRCS)", feature._ircs);
+    retval += this._httpBuilder.createTitleLineWithStrongText("MMSI", feature._mmsi);
+    retval += this._httpBuilder.createTitleLineWithStrongText("IMO", feature._imo);
+    retval += this._httpBuilder.createTitleLineWithStrongText("E-post", feature._vesselemail);
+
+    retval += this._httpBuilder.getSelfContainedHeading(6, "MER INFO");
+    retval += "<div class='divider'></div>";
+    retval += this._httpBuilder.createModalIconLine("link", "Fiskerimeldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/Fiskerimeldinger"); //TODO: Make it look like URL
+    retval += this._httpBuilder.createModalIconLine("link", "J-meldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/J-meldinger/Gjeldende-J-meldinger/");
+    return retval;
+};
+
+ComputerBackend.prototype._createAisBottomsheet = function (feature) {
+    var retval = "";
+    retval += this._httpBuilder.createModalIconLine("date_range", "Fart", feature._sog);
+    retval += this._httpBuilder.createModalIconLine("date_range", "Kurs", feature._cog);
+    retval += this._httpBuilder.createModalIconLine("date_range", "Posisjon", feature._cog);
+    retval += this._httpBuilder.createModalIconLine("place", "Posisjon", FiskInfoUtility.ddToDms(feature._position[1], feature._position[0]));
+    retval += this._httpBuilder.createModalIconLine("date_range", "Signal mottatt", feature.getFormattedDate());
+    retval += this._httpBuilder.createModalIconLine("date_range", "Destinasjon", feature._destination);
+    //TODO: Redskaper
+    retval += this._httpBuilder.getSelfContainedHeading(6, "MER INFO");
+    retval += "<div class='divider'></div>";
+    retval += this._httpBuilder.createModalIconLine("link", "Fiskerimeldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/Fiskerimeldinger"); //TODO: Make it look like URL
+    retval += this._httpBuilder.createModalIconLine("link", "J-meldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/J-meldinger/Gjeldende-J-meldinger/");
+    return retval;
 };
 
 ComputerBackend.prototype._createJMessageBottomsheetContent = function (feature) {

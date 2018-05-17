@@ -115,9 +115,6 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer
                 })
             }),
             geometryFunction: function (feature) {
-                if(feature.getGeometry().getType() !== "LineString" && feature.getGeometry().getType() !== "Point") {
-                    console.log(feature.getGeometry().getType());
-                }
                 return new ol.geom.Point(ol.extent.getCenter(feature.getGeometry().getExtent()));
             }
         }),
@@ -126,12 +123,12 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer
     });
 
     // TODO: PROBABLY TURN ME ON FOR COOLNESS
-   /* var clusteredLayer = new ol.layer.AnimatedCluster( {
-        title: "Tools",
-        source: layer,
-        animationDuration: $("animatecluster").prop("chekced") ? 700: 0,
-        style: BarentswatchStylesRepository.BarentswatchToolStyle
-    }); */
+    /* var clusteredLayer = new ol.layer.AnimatedCluster( {
+         title: "Tools",
+         source: layer,
+         animationDuration: $("animatecluster").prop("chekced") ? 700: 0,
+         style: BarentswatchStylesRepository.BarentswatchToolStyle
+     }); */
 
     if (this.map != null) {
         BarentswatchStylesRepository.SetToolsVectorLayer(layer);

@@ -25,13 +25,11 @@ map = new ol.Map({
     })
 });
 
+var sidebar = new ol.control.Sidebar({element: 'sidebar', position: 'left'});
+map.addControl(sidebar);
+
 // Set extent
 //TODO: SET MORE ACCURAT MAP EXTENT, IGNORE ANTARTICA ETC, only show greenland, norway, russia and england. ALlow some towards canada
-/*var extent = ol.extent.createEmpty();
- map.getLayers().forEach(function (layer) {
- ol.extent.extend(extent, layer.getSource().getExtent());
- });
- map.getView().fitExtent(extent, map.getSize()); */
 
 //WAVE WMS TEST
 map.addLayer(barentswatchCommunicator.createWaveWarningSingleTileWMS());
@@ -111,11 +109,16 @@ var displayFeatureInfo = function (pixel) {
             dispatchDataToBottomsheet(features[features.length - 1], BarentswatchApiObjectTypes.CORAL_REEF);
             break;
         case "AIS":
-            console.log("AIS FOUND");
+            if (features[features.length - 1].values_.features.length > 1) {
+                return;
+            }
+            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.AIS);
             break;
         case "Tools":
-            console.log("TOOL FOUND");
-            console.log(features[features.length - 1].getGeometry().getType());
+            if (features[features.length - 1].values_.features.length > 1) {
+                return;
+            }
+            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
             break;
         default:
             popupOverlay.setPosition(undefined);
@@ -140,7 +143,7 @@ function populateMap() {
     barentswatchCommunicator.createToolsVectorLayer(backendCommunicator);
 
 
-        map.addLayer(iceChartLayer);
+    map.addLayer(iceChartLayer);
     map.addLayer(ongoingSeismic);
     map.addLayer(plannedSeismic);
     map.addLayer(facilityLayer);

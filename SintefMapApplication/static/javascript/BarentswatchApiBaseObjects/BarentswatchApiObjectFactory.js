@@ -17,6 +17,8 @@ function BarentswatchApiObjectFactory() {
                 return new OngoingSeismic();
             case BarentswatchApiObjectTypes.PLANNED_SEISMIC:
                 return new PlannedSeismic();
+            case BarentswatchApiObjectTypes.AIS:
+                return new Ais();
             default:
                 return null;
         }

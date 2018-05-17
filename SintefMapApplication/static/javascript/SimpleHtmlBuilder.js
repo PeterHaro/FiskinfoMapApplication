@@ -17,15 +17,37 @@ SimpleHtmlBuilder.prototype.createModalIconLine = function (iconName, fieldName,
     return retval;
 };
 
-SimpleHtmlBuilder.prototype.getSelfContainedHeading = function(headingSize, text) {
+SimpleHtmlBuilder.prototype.createTitleLineWithStrongText = function (title, field) {
+    this.beginRow();
+    this.beginColumn("12");
+    this.addStrongText(title);
+    this.addLeftPaddedText(title.length, 20, field);
+    this.closeDiv();
+    this.endRow();
+    var retval = this.getString();
+    this.clear();
+    return retval;
+};
+
+SimpleHtmlBuilder.prototype.getSelfContainedHeading = function (headingSize, text) {
     return "<h" + headingSize + " class='blue-text'>" + text + "</h" + headingSize + ">";
 };
 
-SimpleHtmlBuilder.prototype.createHeading = function(headingSize, text) {
+SimpleHtmlBuilder.prototype.createHeading = function (headingSize, text) {
     this._retval += "<h" + headingSize + ">" + text + "</h" + headingSize + ">";
 };
 
 SimpleHtmlBuilder.prototype.addText = function (text) {
+    this._retval += text;
+};
+
+SimpleHtmlBuilder.prototype.addLeftPaddedText = function (fieldLength, length, text) {
+    if (!(fieldLength > length)) {
+        while (fieldLength < length) {
+            this._retval += " ";
+            fieldLength++;
+        }
+    }
     this._retval += text;
 };
 
