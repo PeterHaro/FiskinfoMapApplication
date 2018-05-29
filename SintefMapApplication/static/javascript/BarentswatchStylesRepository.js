@@ -245,9 +245,7 @@ var BarentswatchStylesRepository = function () {
     var aisStyles = {
         "fishing-vessel": new ol.style.Style({
             image: new ol.style.Icon({
-                //anchor: [0.5, 46],
                 src: './boat-orange.svg',
-                // imgSize: [13, 29],
             })
         }),
         "non-fishing-vessel": new ol.style.Style({
@@ -321,6 +319,124 @@ var BarentswatchStylesRepository = function () {
             })*/
         })
     };
+
+    function createCrabPotStyle(size) {
+        return new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({
+                    color: "rgba(255, 204, 102, 1)"
+                }),
+                stroke: new ol.style.Stroke({color: 'white', width: 2}),
+                points: 3,
+                radius: 20
+            }),
+            text: new ol.style.Text({
+                text: size.toString(),
+                fill: textFill,
+                stroke: textStroke
+            })
+        });
+    }
+
+    function createMooringSystemStyle(size) {
+        return new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: 'pink'}),
+                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                points: 3,
+                radius: 20
+            }),
+            text: new ol.style.Text({
+                text: size.toString(),
+                fill: textFill,
+                stroke: textStroke
+            })
+        });
+    }
+
+    function createLongLineStyle(size) {
+        return new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: 'red'}),
+                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                points: 3,
+                radius: 20
+            }),
+            text: new ol.style.Text({
+                text: size.toString(),
+                fill: textFill,
+                stroke: textStroke
+            })
+        });
+    }
+
+    function createNetStyle(size) {
+        return new new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({
+                    color: "rgba(0, 51, 204, 1)"
+                }),
+                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                points: 3,
+                radius: 20,
+                rotation: 0,
+                angle: 0
+            }),
+            text: new ol.style.Text({
+                text: size.toString(),
+                fill: textFill,
+                stroke: textStroke
+            })
+        });
+    }
+
+    function createPurseSeineStyle(size) {
+        return new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: 'purple'}),
+                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                points: 3,
+                radius: 20
+            }),
+            text: new ol.style.Text({
+                text: size.toString(),
+                fill: textFill,
+                stroke: textStroke
+            })
+        });
+    }
+
+    function createSensorCableStyle(size) {
+        return new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: 'green'}),
+                stroke: new ol.style.Stroke({color: 'black', width: 2}),
+                points: 3,
+                radius: 20
+            }),
+            text: new ol.style.Text({
+                text: size.toString(),
+                fill: textFill,
+                stroke: textStroke
+            })
+        });
+    }
+
+    function createUnknownToolStyle(size) {
+        return new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: 'rgba(105,105,105, 1)'}),
+                stroke: new ol.style.Stroke({color: 'white', width: 2}),
+                points: 3,
+                radius: 20
+            }),
+            text: new ol.style.Text({
+                text: size.toString(),
+                fill: textFill,
+                stroke: textStroke
+            })
+        });
+    }
 
     var iceChartStyleFunction = function (feature, resolution) {
         if (!feature) {
@@ -424,6 +540,10 @@ var BarentswatchStylesRepository = function () {
     };
 
     var _aisSelectionStyleFunction = function (feature, resolution) {
+        if (feature.get('features').length === 1) {
+            return createAisSingleFeatureStyle(feature.get('features')[0]);
+        }
+
         var extent = new ol.extent.createEmpty();
         feature.get('features').forEach(function (f, index, array) {
             ol.extent.extend(extent, f.getGeometry().getExtent());
@@ -440,6 +560,9 @@ var BarentswatchStylesRepository = function () {
         });
     };
     var _toolsSelectionStyleFunction = function (feature, resolution) {
+        if (feature.get('features').length === 1) {
+            return createToolSingleFeatureStyle(feature.get('features')[0]);
+        }
         var extent = new ol.extent.createEmpty();
         feature.get('features').forEach(function (f, index, array) {
             ol.extent.extend(extent, f.getGeometry().getExtent());
@@ -480,117 +603,19 @@ var BarentswatchStylesRepository = function () {
             if (isSameTools) {
                 switch (toolToCheck) {
                     case "Nets":
-                        var garnStyle = new ol.style.Style({
-                            image: new ol.style.RegularShape({
-                                fill: new ol.style.Fill({
-                                    color: "rgba(0, 51, 204, 1)"
-                                }),
-                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
-                                points: 3,
-                                radius: 20,
-                                rotation: 0,
-                                angle: 0
-                            }),
-                            text: new ol.style.Text({
-                                text: size.toString(),
-                                fill: textFill,
-                                stroke: textStroke
-                            })
-                        });
-                        //TODO: FIGUREOUT WHY THIS DOESNT WORK
-                        /*var garnStyle = toolStyles["garn"];
-                        garnStyle.text = new ol.style.Text({
-                            text: size.toString(),
-                            fill: textFill,
-                            stroke: textStroke
-                        });*/
-                        return garnStyle;
+                        return createNetStyle(size);
                     case "Crab pot":
-                        return new ol.style.Style({
-                            image: new ol.style.RegularShape({
-                                fill: new ol.style.Fill({
-                                    color: "rgba(255, 204, 102, 1)"
-                                }),
-                                stroke: new ol.style.Stroke({color: 'white', width: 2}),
-                                points: 3,
-                                radius: 20
-                            }),
-                            text: new ol.style.Text({
-                                text: size.toString(),
-                                fill: textFill,
-                                stroke: textStroke
-                            })
-                        });
+                        return createCrabPotStyle(size);
                     case "Mooring system":
-                        return new ol.style.Style({
-                            image: new ol.style.RegularShape({
-                                fill: new ol.style.Fill({color: 'pink'}),
-                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
-                                points: 3,
-                                radius: 20
-                            }),
-                            text: new ol.style.Text({
-                                text: size.toString(),
-                                fill: textFill,
-                                stroke: textStroke
-                            })
-                        });
+                        return createMooringSystemStyle(size);
                     case "Long line":
-                        return new ol.style.Style({
-                            image: new ol.style.RegularShape({
-                                fill: new ol.style.Fill({color: 'red'}),
-                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
-                                points: 3,
-                                radius: 20
-                            }),
-                            text: new ol.style.Text({
-                                text: size.toString(),
-                                fill: textFill,
-                                stroke: textStroke
-                            })
-                        });
+                        return createLongLineStyle(size);
                     case "Danish- / Purse- Seine":
-                        return new ol.style.Style({
-                            image: new ol.style.RegularShape({
-                                fill: new ol.style.Fill({color: 'purple'}),
-                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
-                                points: 3,
-                                radius: 20
-                            }),
-                            text: new ol.style.Text({
-                                text: size.toString(),
-                                fill: textFill,
-                                stroke: textStroke
-                            })
-                        });
+                        return createPurseSeineStyle(size);
                     case "Sensor / Cable":
-                        return new ol.style.Style({
-                            image: new ol.style.RegularShape({
-                                fill: new ol.style.Fill({color: 'green'}),
-                                stroke: new ol.style.Stroke({color: 'black', width: 2}),
-                                points: 3,
-                                radius: 20
-                            }),
-                            text: new ol.style.Text({
-                                text: size.toString(),
-                                fill: textFill,
-                                stroke: textStroke
-                            })
-                        });
+                        return createSensorCableStyle(size);
                     case "Unknown":
-                        return new ol.style.Style({
-                            image: new ol.style.RegularShape({
-                                fill: new ol.style.Fill({color: 'rgba(105,105,105, 1)'}),
-                                stroke: new ol.style.Stroke({color: 'white', width: 2}),
-                                points: 3,
-                                radius: 20
-                            }),
-                            text: new ol.style.Text({
-                                text: size.toString(),
-                                fill: textFill,
-                                stroke: textStroke
-                            })
-                        });
+                        return createUnknownToolStyle(size);
                     default:
                         console.log("SAYWHAAAT");
                         console.log(toolToCheck);

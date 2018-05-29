@@ -25,8 +25,8 @@ map = new ol.Map({
     })
 });
 
-var sidebar = new ol.control.Sidebar({element: 'sidebar', position: 'left'});
-map.addControl(sidebar);
+//var sidebar = new ol.control.Sidebar({element: 'sidebar', position: 'left'});
+//map.addControl(sidebar);
 
 // Set extent
 //TODO: SET MORE ACCURAT MAP EXTENT, IGNORE ANTARTICA ETC, only show greenland, norway, russia and england. ALlow some towards canada
@@ -125,9 +125,41 @@ var displayFeatureInfo = function (pixel) {
             closer.blur();
             break;
     }
-
-
 };
+
+function getAllMapLayers() {
+    var mLayers = [];
+    map.getLayers().forEach(function (layer) {
+        //If this is actually a group, we need to create an inner loop to go through its individual layers
+        if (layer instanceof ol.layer.Group) {
+            layer.getLayers().forEach(function (groupLayer) {
+                mLayers.push(groupLayer);
+            });
+        }
+        else {
+            mLayers.push(layer);
+        }
+    });
+    return mLayers;
+}
+
+function getLayersByNameAndVisibilityState() {
+    var retval = [];
+    getAllMapLayers().forEach(function (layer) {
+        retval.push({name: layer.get("title"), visibility: layer.getVisible()});
+    });
+    return retval;
+}
+
+function setVsibilityOfLayerByName(name, visiblity) {
+    var layers = getAllMapLayers();
+    layers.forEach(function (layer) {
+        if (layer.get("title") === name) {
+            layer.setVisible(visiblity);
+            return;
+        }
+    });
+}
 
 function populateMap() {
     barentswatchCommunicator.setMap(map);
