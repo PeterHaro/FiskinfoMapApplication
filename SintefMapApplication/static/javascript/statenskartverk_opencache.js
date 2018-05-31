@@ -36,6 +36,7 @@ StatensKartverkCommunicator.prototype.CreateTileLayerWTMSFromSource = function (
     return new ol.layer.Tile({
         title: title,
         source: sourceWMTS,
-        type: type
+        type: type,
+        bgcolor: '0x80BDE3'
     });
 };

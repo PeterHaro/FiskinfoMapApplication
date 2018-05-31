@@ -4,6 +4,17 @@ var map;
 var statensKartverkCommunicator = new StatensKartverkCommunicator();
 var barentswatchCommunicator = new BarentswatchMapServicesCommunicator();
 var tileLayerWMTS = statensKartverkCommunicator.CreateTileLayerWTMSFromSource(statensKartverkCommunicator.CreateSourceWmts("sjokartraster"), "base", "Norges grunnkart");
+var openSeaMapLayer = new ol.layer.Tile({
+    source: new ol.source.OSM({
+        attributions: [
+            'All maps © <a href="http://www.openseamap.org/">OpenSeaMap</a>',
+            ol.source.OSM.ATTRIBUTION
+        ],
+        opaque: false,
+        url: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png'
+    })
+});
+var polar = statensKartverkCommunicator.CreateTileLayerWTMSFromSource(statensKartverkCommunicator.CreateSourceWmts("sirkumpolar_grunnkart"), "base", "Norges grunnkart");
 var barentswatchObjectFactory = new BarentswatchApiObjectFactory();
 var backendCommunicator = BackendFactory.createBackend(applicationType);
 
@@ -17,7 +28,7 @@ var sensor = false;
 // __END_GEOLOCATION
 
 map = new ol.Map({
-    layers: [tileLayerWMTS],
+    layers: [polar],
     target: 'map',
     view: new ol.View({
         center: ol.proj.transform([15.5, 68], 'EPSG:4326', 'EPSG:3857'),
@@ -115,6 +126,48 @@ var displayFeatureInfo = function (pixel) {
             dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.AIS);
             break;
         case "Tools":
+            if (features[features.length - 1].values_.features.length > 1) {
+                return;
+            }
+            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
+            break;
+        case "Tools-nets":
+            if (features[features.length - 1].values_.features.length > 1) {
+                return;
+            }
+            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
+            break;
+        case "Tools-crabpot":
+            if (features[features.length - 1].values_.features.length > 1) {
+                return;
+            }
+            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
+            break;
+        case "Tools-mooring":
+            if (features[features.length - 1].values_.features.length > 1) {
+                return;
+            }
+            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
+            break;
+        case "Tools-longLine":
+            if (features[features.length - 1].values_.features.length > 1) {
+                return;
+            }
+            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
+            break;
+        case "Tools-danishPurseSeine":
+            if (features[features.length - 1].values_.features.length > 1) {
+                return;
+            }
+            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
+            break;
+        case "Tools-sensorcables":
+            if (features[features.length - 1].values_.features.length > 1) {
+                return;
+            }
+            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
+            break;
+        case "Tools-unknown":
             if (features[features.length - 1].values_.features.length > 1) {
                 return;
             }

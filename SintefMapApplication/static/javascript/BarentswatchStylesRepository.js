@@ -4,6 +4,13 @@ var BarentswatchStylesRepository = function () {
     var maxFeatureCount = 0;
     var aisVectorReference = null;
     var toolsVectorReference = null;
+    let netsVectorReference = null;
+    let crabpotVectorReference = null;
+    let mooringVectorReference = null;
+    let longlineeVectorReference = null;
+    let danishPurSeineVectorReference = null;
+    let sensorCableVectorReference = null;
+    let unknownVectorReference = null;
 
     var textFill = new ol.style.Fill({
         color: '#fff'
@@ -371,7 +378,7 @@ var BarentswatchStylesRepository = function () {
     }
 
     function createNetStyle(size) {
-        return new new ol.style.Style({
+        return new ol.style.Style({
             image: new ol.style.RegularShape({
                 fill: new ol.style.Fill({
                     color: "rgba(0, 51, 204, 1)"
@@ -484,10 +491,33 @@ var BarentswatchStylesRepository = function () {
     var calculateClusterInfo = function (resolution, clusterType) {
         maxFeatureCount = 0;
         var features = null;
-        if (clusterType === "tools") {
-            features = BarentswatchStylesRepository.GetToolsVectorReference().getSource().getFeatures();
-        } else if (clusterType === "ais") {
-            features = BarentswatchStylesRepository.GetAisVectorReference().getSource().getFeatures();
+        switch (clusterType) {
+            case "NETS":
+                features = BarentswatchStylesRepository.BarentswatchGetNetsVectorReference().getSource().getFeatures();
+                break;
+            case "CRABPOT":
+                features = BarentswatchStylesRepository.BarentswatchGetCrabpotVectorReference().getSource().getFeatures();
+                break;
+            case "MOORING":
+                features = BarentswatchStylesRepository.BarentswatchGetMooringVectorReference().getSource().getFeatures();
+                break;
+            case "LONGLINE":
+                features = BarentswatchStylesRepository.BarentswatchGetLonglineVectorReference().getSource().getFeatures();
+                break;
+            case "DANPURSEINE":
+                features = BarentswatchStylesRepository.BarentswatchGetDanishPurSeineVectorReference().getSource().getFeatures();
+                break;
+            case "SENSORCABLE":
+                features = BarentswatchStylesRepository.BarentswatchGetSensorCableVectorReference().getSource().getFeatures();
+                break;
+            case "UNK":
+                features = BarentswatchStylesRepository.BarentswatchGetUnknownVectorReference().getSource().getFeatures();
+                break;
+            case "ais":
+                features = BarentswatchStylesRepository.GetAisVectorReference().getSource().getFeatures();
+                break;
+            default:
+                console.log("Invalid typetype. What do we do now?");
         }
         var feature, radius;
         for (var i = features.length - 1; i >= 0; --i) {
@@ -507,6 +537,14 @@ var BarentswatchStylesRepository = function () {
 
     var oldAISClusterStyleResolution;
     var oldToolClusterStyleResolution;
+    var netsClusterStyleResolution;
+    var crabPotClusterStyleResolution;
+    var mooringSystemStyleResolution;
+    let longLineClusterStyleResolution;
+    let danishPurseSeineClusterStyleResolution;
+    let sensorCableClusterStyleResolution;
+    let unknownClusterStyleResolution;
+
     var aisClusterStyleFunction = function (feature, resolution) {
         if (resolution != oldAISClusterStyleResolution) {
             calculateClusterInfo(resolution, "ais");
@@ -515,9 +553,14 @@ var BarentswatchStylesRepository = function () {
         var style;
         var size = feature.get('features').length;
         if (size > 1) {
+            let radiusSize = 15;
+            if ((feature.get("radius") * 0.6) > radiusSize) {
+                radiusSize = (feature.get("radius") * 0.6);
+            }
             style = new ol.style.Style({
+                zIndex: 1,
                 image: new ol.style.Circle({
-                    radius: feature.get('radius'),
+                    radius: radiusSize,
                     stroke: new ol.style.Stroke({
                         color: "rgba(255, 255, 255, 1)",
                         width: 2
@@ -530,7 +573,7 @@ var BarentswatchStylesRepository = function () {
                     text: size.toString(),
                     fill: textFill,
                     stroke: textStroke
-                })
+                }),
             });
         } else {
             var originalFeature = feature.get("features")[0];
@@ -559,6 +602,7 @@ var BarentswatchStylesRepository = function () {
             }
         });
     };
+
     var _toolsSelectionStyleFunction = function (feature, resolution) {
         if (feature.get('features').length === 1) {
             return createToolSingleFeatureStyle(feature.get('features')[0]);
@@ -579,7 +623,87 @@ var BarentswatchStylesRepository = function () {
         });
     };
 
+
+    //<editor-fold desc="Tool style functions">
     var toolsStyleCache = {};
+    let netsClusterStyleFunction = function (feature, resolution) {
+        if (resolution !== netsClusterStyleResolution) {
+            calculateClusterInfo(resolution, "NETS");
+            netsClusterStyleResolution = resolution;
+        }
+        let size = feature.get("features").length;
+        if (!(size > 1)) {
+            return createToolSingleFeatureStyle(feature.get("features")[0]);
+        }
+        return createNetStyle(size);
+    };
+    let crabpotClusterStyleFunction = function (feature, resolution) {
+        if (resolution !== crabPotClusterStyleResolution) {
+            calculateClusterInfo(resolution, "CRABPOT");
+            crabPotClusterStyleResolution = resolution;
+        }
+        let size = feature.get("features").length;
+        if (!(size > 1)) {
+            return createToolSingleFeatureStyle(feature.get("features")[0]);
+        }
+        return createCrabPotStyle(size);
+    };
+    let mooringClusterStyleFunction = function (feature, resolution) {
+        if (resolution !== mooringSystemStyleResolution) {
+            calculateClusterInfo(resolution, "MOORING");
+            mooringSystemStyleResolution = resolution;
+        }
+        let size = feature.get("features").length;
+        if (!(size > 1)) {
+            return createToolSingleFeatureStyle(feature.get("features")[0]);
+        }
+        return createMooringSystemStyle(size);
+    };
+    let longLineClusterStyleFunction = function (feature, resolution) {
+        if (resolution !== longLineClusterStyleResolution) {
+            calculateClusterInfo(resolution, "LONGLINE");
+            longLineClusterStyleResolution = resolution;
+        }
+        let size = feature.get("features").length;
+        if (!(size > 1)) {
+            return createToolSingleFeatureStyle(feature.get("features")[0]);
+        }
+        return createLongLineStyle(size);
+    };
+    let danPurSeineClusterStyleFunction = function (feature, resolution) {
+        if (resolution !== danishPurseSeineClusterStyleResolution) {
+            calculateClusterInfo(resolution, "DANPURSEINE");
+            danishPurseSeineClusterStyleResolution = resolution;
+        }
+        let size = feature.get("features").length;
+        if (!(size > 1)) {
+            return createToolSingleFeatureStyle(feature.get("features")[0]);
+        }
+        return createPurseSeineStyle(size);
+    };
+    let sensorCableClusterStyleFunction = function (feature, resolution) {
+        if (resolution !== sensorCableClusterStyleResolution) {
+            calculateClusterInfo(resolution, "SENSORCABLE");
+            sensorCableClusterStyleResolution = resolution;
+        }
+        let size = feature.get("features").length;
+        if (!(size > 1)) {
+            return createToolSingleFeatureStyle(feature.get("features")[0]);
+        }
+        return createSensorCableStyle(size);
+    };
+    let unknownClusterStyleFunction = function (feature, resolution) {
+        if (resolution !== unknownClusterStyleResolution) {
+            calculateClusterInfo(resolution, "UNK");
+            unknownClusterStyleResolution = resolution;
+        }
+        let size = feature.get("features").length;
+        if (!(size > 1)) {
+            return createToolSingleFeatureStyle(feature.get("features")[0]);
+        }
+        return createUnknownToolStyle(size);
+    };
+    //</editor-fold>
     var toolsClusterStyleFunction = function (feature, resolution) {
         if (resolution != oldToolClusterStyleResolution) {
             calculateClusterInfo(resolution, "tools");
@@ -736,6 +860,63 @@ var BarentswatchStylesRepository = function () {
         return this.toolsVectorReference;
     }
 
+    function setNetsVectorReference(layer) {
+        this.netsVectorReference = layer;
+    }
+
+    function setCrabpotVectorReference(layer) {
+        this.crabpotVectorReference = layer;
+    }
+
+    function setMooringVectorReference(layer) {
+        this.mooringVectorReference = layer;
+    }
+
+    function setLonglineeVectorReference(layer) {
+        this.longlineeVectorReference = layer;
+    }
+
+    function setDanishPurSeineVectorReference(layer) {
+        this.danishPurSeineVectorReference = layer;
+    }
+
+    function setSensorCableVectorReference(layer) {
+        this.sensorCableVectorReference = layer;
+    }
+
+    function setUnknownVectorReference(layer) {
+        this.unknownVectorReference = layer;
+    }
+
+    function getNetsVectorReference() {
+        return this.netsVectorReference;
+    }
+
+    function getCrabpotVectorReference() {
+        return this.crabpotVectorReference;
+    }
+
+    function getMooringVectorReference() {
+        return this.mooringVectorReference;
+    }
+
+    function getLonglineVectorReference() {
+        return this.longlineeVectorReference;
+    }
+
+    function getDanishPurSeineVectorReference() {
+        return this.danishPurSeineVectorReference;
+    }
+
+    function getSensorCableVectorReference() {
+        return this.sensorCableVectorReference;
+    }
+
+    function getUnknownVectorReference() {
+        return this.unknownVectorReference;
+    }
+
+
     // __END_GETTERS_AND_SETTERS
 
     return {
@@ -758,6 +939,29 @@ var BarentswatchStylesRepository = function () {
         SetAisVectorLayer: setAisVectorLayer,
         GetAisVectorReference: getAisVectorReference,
         BarentswatchToolStyle: toolsClusterStyleFunction,
+        //__BEGIN_TOOLS_
+        BarentswatchToolNetsStyle: netsClusterStyleFunction,
+        BarentswatchCrabpotToolStyle: crabpotClusterStyleFunction,
+        BarentswatchMooringToolStyle: mooringClusterStyleFunction,
+        BarentswatchLonglineToolStyle: longLineClusterStyleFunction,
+        BarentswatchDanishPureSeineToolStyle: danPurSeineClusterStyleFunction,
+        BarentswatchSenosCableToolStyle: sensorCableClusterStyleFunction,
+        BarentswatchUnknownToolStyle: unknownClusterStyleFunction,
+        BarentswatchSetNetsVectorReference: setNetsVectorReference,
+        BarentswatchSetCrabpotVectorReference: setCrabpotVectorReference,
+        BarentswatchSetMooringVectorReference: setMooringVectorReference,
+        BarentswatchSetLonglineVectorReference: setLonglineeVectorReference,
+        BarentswatchSetDanishPurSeineVectorReference: setDanishPurSeineVectorReference,
+        BarentswatchSetSensorCableVectorReference: setSensorCableVectorReference,
+        BarentswatchSetUnknownVectorReference: setUnknownVectorReference,
+        BarentswatchGetNetsVectorReference: getNetsVectorReference,
+        BarentswatchGetCrabpotVectorReference: getCrabpotVectorReference,
+        BarentswatchGetMooringVectorReference: getMooringVectorReference,
+        BarentswatchGetLonglineVectorReference: getLonglineVectorReference,
+        BarentswatchGetDanishPurSeineVectorReference: getDanishPurSeineVectorReference,
+        BarentswatchGetSensorCableVectorReference: getSensorCableVectorReference,
+        BarentswatchGetUnknownVectorReference: getUnknownVectorReference,
+        //__END_TOOLS_
         SetToolsVectorLayer: setToolVectorLayer,
         GetToolsVectorReference: getToolVectorLayeer,
         BarentswatchToolSelectionStyle: toolSelectionStyleFunction

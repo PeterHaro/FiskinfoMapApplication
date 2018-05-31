@@ -87,7 +87,7 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
 
     var layer = new ol.layer.Vector({
         source: new ol.source.Cluster({
-            distance: 15,
+            distance: 35,
             source: new ol.source.Vector({
                 features: new ol.format.GeoJSON().readFeatures(geoJsonData, {
                     featureProjection: "EPSG:3857"
@@ -106,53 +106,102 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
 };
 
 BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer = function (data) {
-    var layer = new ol.layer.Vector({
+    //SORRY!!!
+    let _createClusteredVectorToolLayer = function (_features, _title, _style) {
+        return new ol.layer.Vector({
+            source: new ol.source.Cluster({
+                distance: 35,
+                source: new ol.source.Vector({
+                    features: _features
+                }),
+                geometryFunction: function (feature) {
+                    return new ol.geom.Point(ol.extent.getCenter(feature.getGeometry().getExtent()));
+                }
+            }),
+            style: _style,
+            title: _title
+        });
+    };
+
+    let featureData = new ol.format.GeoJSON().readFeatures(data, {
+        featureProjection: "EPSG:3857"
+    });
+
+    let netsData = [];
+    let crabPotData = [];
+    let mooringSystemData = [];
+    let longLineData = [];
+    let danishPurseSeineData = [];
+    let sensorCableData = [];
+    let unknownData = [];
+
+    featureData.forEach(function (feature) {
+        switch (feature.values_.tooltypecode) {
+            case "NETS":
+                netsData.push(feature);
+                break;
+            case "CRABPOT":
+                crabPotData.push(feature);
+                break;
+            case "MOORING":
+                mooringSystemData.push(feature);
+                break;
+            case "LONGLINE":
+                longLineData.push(feature);
+                break;
+            case "DANPURSEINE":
+                danishPurseSeineData.push(feature);
+                break;
+            case "SENSORCABLE":
+                sensorCableData.push(feature);
+                break;
+            case "UNK":
+            default:
+                unknownData.push(feature);
+        }
+    });
+
+    let netsLayer = _createClusteredVectorToolLayer(netsData, "Tools-nets", BarentswatchStylesRepository.BarentswatchToolNetsStyle);
+    let crabpotLayer = _createClusteredVectorToolLayer(crabPotData, "Tools-crabpot", BarentswatchStylesRepository.BarentswatchCrabpotToolStyle);
+    let mooringLayer = _createClusteredVectorToolLayer(mooringSystemData, "Tools-mooring", BarentswatchStylesRepository.BarentswatchMooringToolStyle);
+    let longLineLayer = _createClusteredVectorToolLayer(longLineData, "Tools-longLine", BarentswatchStylesRepository.BarentswatchLonglineToolStyle);
+    let danishPurseSeineLayer = _createClusteredVectorToolLayer(danishPurseSeineData, "Tools-danishPurseSeine", BarentswatchStylesRepository.BarentswatchDanishPureSeineToolStyle);
+    let sensorCableLayer = _createClusteredVectorToolLayer(sensorCableData, "Tools-sensorcables", BarentswatchStylesRepository.BarentswatchSenosCableToolStyle);
+    let unknownToolLayer = _createClusteredVectorToolLayer(unknownData, "Tools-unknown", BarentswatchStylesRepository.BarentswatchUnknownToolStyle);
+    if (this.map != null) {
+        BarentswatchStylesRepository.BarentswatchSetNetsVectorReference(netsLayer);
+        BarentswatchStylesRepository.BarentswatchSetCrabpotVectorReference(crabpotLayer);
+        BarentswatchStylesRepository.BarentswatchSetMooringVectorReference(mooringLayer);
+        BarentswatchStylesRepository.BarentswatchSetLonglineVectorReference(longLineLayer);
+        BarentswatchStylesRepository.BarentswatchSetDanishPurSeineVectorReference(danishPurseSeineLayer);
+        BarentswatchStylesRepository.BarentswatchSetSensorCableVectorReference(sensorCableLayer);
+        BarentswatchStylesRepository.BarentswatchSetUnknownVectorReference(unknownToolLayer);
+        map.addLayer(netsLayer);
+        map.addLayer(crabpotLayer);
+        map.addLayer(mooringLayer);
+        map.addLayer(longLineLayer);
+        map.addLayer(danishPurseSeineLayer);
+        map.addLayer(sensorCableLayer);
+        map.addLayer(unknownToolLayer);
+        map.addInteraction(BarentswatchStylesRepository.BarentswatchToolSelectionStyle());
+    }
+};
+
+BarentswatchMapServicesCommunicator.prototype.createClusteredVectorToolLayer = function (_features, _title) {
+    return new ol.layer.Vector({
         source: new ol.source.Cluster({
-            distance: 15,
+            distance: 17,
             source: new ol.source.Vector({
-                features: new ol.format.GeoJSON().readFeatures(data, {
-                    featureProjection: "EPSG:3857"
-                })
+                features: _features
             }),
             geometryFunction: function (feature) {
                 return new ol.geom.Point(ol.extent.getCenter(feature.getGeometry().getExtent()));
             }
         }),
         style: BarentswatchStylesRepository.BarentswatchToolStyle,
-        title: "Tools"
+        title: _title
     });
-
-    // TODO: PROBABLY TURN ME ON FOR COOLNESS
-    /* var clusteredLayer = new ol.layer.AnimatedCluster( {
-         title: "Tools",
-         source: layer,
-         animationDuration: $("animatecluster").prop("chekced") ? 700: 0,
-         style: BarentswatchStylesRepository.BarentswatchToolStyle
-     }); */
-
-    if (this.map != null) {
-        BarentswatchStylesRepository.SetToolsVectorLayer(layer);
-        map.addLayer(layer);
-        map.addInteraction(BarentswatchStylesRepository.BarentswatchToolSelectionStyle());
-    }
 };
-
-/*BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer = function (data) {
-    return new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: new ol.format.GeoJSON().readFeatures(data, {
-                featureProjection: "EPSG:3857"
-            })
-        }),
-        style: BarentswatchStylesRepository.BarentswatchToolStyle,
-        title: "Tools"
-    });
-        if (this.map != null) {
-        BarentswatchStylesRepository.SetToolsVectorLayer(layer);
-        map.addLayer(layer);
-        //map.addInteraction(BarentswatchStylesRepository.BarentswatchToolSelectionStyle());
-    }
-};*/
 
 BarentswatchMapServicesCommunicator.prototype.createAuthenticatedServiceVectorLayer = function (token, query, authenticatedCall) {
     if (authenticatedCall === "ais") {
