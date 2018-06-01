@@ -95,7 +95,8 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
             })
         }),
         style: BarentswatchStylesRepository.BarentswatchAisStyle,
-        title: "AIS"
+        title: "AIS",
+        renderMode: 'image'
     });
 
     if (this.map != null) {

@@ -4,7 +4,7 @@ var map;
 var statensKartverkCommunicator = new StatensKartverkCommunicator();
 var barentswatchCommunicator = new BarentswatchMapServicesCommunicator();
 var tileLayerWMTS = statensKartverkCommunicator.CreateTileLayerWTMSFromSource(statensKartverkCommunicator.CreateSourceWmts("sjokartraster"), "base", "Norges grunnkart");
-var openSeaMapLayer = new ol.layer.Tile({
+/*var openSeaMapLayer = new ol.layer.Tile({
     source: new ol.source.OSM({
         attributions: [
             'All maps © <a href="http://www.openseamap.org/">OpenSeaMap</a>',
@@ -13,7 +13,7 @@ var openSeaMapLayer = new ol.layer.Tile({
         opaque: false,
         url: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png'
     })
-});
+});*/
 var polar = statensKartverkCommunicator.CreateTileLayerWTMSFromSource(statensKartverkCommunicator.CreateSourceWmts("sirkumpolar_grunnkart"), "base", "Norges grunnkart");
 var barentswatchObjectFactory = new BarentswatchApiObjectFactory();
 var backendCommunicator = BackendFactory.createBackend(applicationType);
@@ -28,6 +28,7 @@ var sensor = false;
 // __END_GEOLOCATION
 
 map = new ol.Map({
+    //renderer: (['webgl', 'canvas']),
     layers: [polar],
     target: 'map',
     view: new ol.View({

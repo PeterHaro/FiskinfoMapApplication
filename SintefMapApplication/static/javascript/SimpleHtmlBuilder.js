@@ -72,7 +72,7 @@ SimpleHtmlBuilder.prototype.getString = function () {
 };
 
 SimpleHtmlBuilder.prototype.beginRow = function () {
-    this._retval += "<div class='row'>";
+    this._retval += "<div class='row '>";
 };
 
 SimpleHtmlBuilder.prototype.endRow = function () {

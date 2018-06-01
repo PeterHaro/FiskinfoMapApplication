@@ -329,6 +329,7 @@ var BarentswatchStylesRepository = function () {
 
     function createCrabPotStyle(size) {
         return new ol.style.Style({
+            zIndex: 500,
             image: new ol.style.RegularShape({
                 fill: new ol.style.Fill({
                     color: "rgba(255, 204, 102, 1)"
@@ -347,6 +348,7 @@ var BarentswatchStylesRepository = function () {
 
     function createMooringSystemStyle(size) {
         return new ol.style.Style({
+            zIndex: 500,
             image: new ol.style.RegularShape({
                 fill: new ol.style.Fill({color: 'pink'}),
                 stroke: new ol.style.Stroke({color: 'black', width: 2}),
@@ -558,8 +560,9 @@ var BarentswatchStylesRepository = function () {
                 radiusSize = (feature.get("radius") * 0.6);
             }
             style = new ol.style.Style({
-                zIndex: 1,
+                zIndex: -999,
                 image: new ol.style.Circle({
+                    zIndex: -999,
                     radius: radiusSize,
                     stroke: new ol.style.Stroke({
                         color: "rgba(255, 255, 255, 1)",

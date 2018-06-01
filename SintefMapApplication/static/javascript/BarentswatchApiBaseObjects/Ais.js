@@ -15,7 +15,7 @@ function Ais() {
 
 Ais.prototype.parseObject = function(aisObject) {
     this._name = aisObject.get("Name");
-    this._shipType = this.fetchShipType(aisObject.get("ShipType"));
+    this._shipType = aisObject.get("ShipType");
     this._eta = aisObject.get("Eta");
     this._mmsi = aisObject.get("Mmsi");
     this._destination = aisObject.get("Destination");
@@ -24,6 +24,10 @@ Ais.prototype.parseObject = function(aisObject) {
     this._cog = aisObject.get("Cog");
     this._country = aisObject.get("Country");
     this._position = ol.extent.getCenter(aisObject.getGeometry().getExtent());
+};
+
+Ais.prototype.getShipTypeString = function () {
+    return AisShipTypeNumberTranslator.translateNumber(this._shipType);
 };
 
 Ais.prototype.getFormattedDate = function() { // TODO: Consider adding HH:MM

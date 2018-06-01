@@ -24,7 +24,12 @@ ComputerBackend.prototype.showBottmsheet = function (feature) {
     body.text("");
     body.append(this._httpBuilder.getSelfContainedHeading(3, feature._name));
     this._httpBuilder.clear();
-    body.append("<h6>" + feature._norwegianTitle + "</h6>");
+    if (feature._type === BarentswatchApiObjectTypes.AIS) { //TODO: REFACTOR
+        body.append("<h6 class='grey-text grey lighten-5'>" + feature.getShipTypeString() + "</h6>");
+    } else {
+        body.append("<h6>" + feature._norwegianTitle + "</h6>");
+    }
+    body.append("<br>");
     body.append("<div class='divider'></div>");
     var content = "";
 
