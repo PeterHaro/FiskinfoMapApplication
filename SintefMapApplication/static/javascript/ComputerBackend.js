@@ -22,12 +22,12 @@ ComputerBackend.prototype.getToken = function (_callback, that) {
 ComputerBackend.prototype.showBottmsheet = function (feature) {
     var body = $("#bottom_sheet_container");
     body.text("");
-    body.append(this._httpBuilder.getSelfContainedHeading(3, feature._name));
+    body.append(this._httpBuilder.getSelfContainedHeading(4, feature._name));
     this._httpBuilder.clear();
     if (feature._type === BarentswatchApiObjectTypes.AIS) { //TODO: REFACTOR
-        body.append("<h6 class='grey-text grey lighten-5'>" + feature.getShipTypeString() + "</h6>");
+        body.append("<h6 class='grey-text grey lighten-5 align-material-c-to-title'>" + feature.getShipTypeString() + "</h6>");
     } else {
-        body.append("<h6>" + feature._norwegianTitle + "</h6>");
+        body.append("<h6 class='grey-text grey lighten-5 align-material-c-to-title'>" + feature._norwegianTitle + "</h6>");
     }
     body.append("<br>");
     body.append("<div class='divider'></div>");
@@ -90,24 +90,24 @@ ComputerBackend.prototype._showToolBottomsheet = function (feature) {
 
     retval += this._httpBuilder.getSelfContainedHeading(6, "MER INFO");
     retval += "<div class='divider'></div>";
-    retval += this._httpBuilder.createModalIconLine("link", "Fiskerimeldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/Fiskerimeldinger"); //TODO: Make it look like URL
-    retval += this._httpBuilder.createModalIconLine("link", "J-meldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/J-meldinger/Gjeldende-J-meldinger/");
+    retval += this._httpBuilder.createModalIconLine("link", "Fiskerimeldinger", "<a target='_blank' href='https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/Fiskerimeldinger'>Fiskerimeldinger</a>");
+    retval += this._httpBuilder.createModalIconLine("link", "J-meldinger", "<a target='_blank' href='https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/J-meldinger/Gjeldende-J-meldinger/'>J-meldinger</a>");
     return retval;
 };
 
 ComputerBackend.prototype._createAisBottomsheet = function (feature) {
     var retval = "";
-    retval += this._httpBuilder.createModalIconLine("date_range", "Fart", feature._sog);
-    retval += this._httpBuilder.createModalIconLine("date_range", "Kurs", feature._cog);
-    retval += this._httpBuilder.createModalIconLine("date_range", "Posisjon", feature._cog);
+    retval += this._httpBuilder.createModalIconLine("directions_boat", "Fart", feature._sog);
+    retval += this._httpBuilder.createModalIconLine("compass_calibration", "Kurs", feature._cog);
+    retval += this._httpBuilder.createModalIconLine("gps_fixed", "Posisjon", feature._cog);
     retval += this._httpBuilder.createModalIconLine("place", "Posisjon", FiskInfoUtility.ddToDms(feature._position[1], feature._position[0]));
     retval += this._httpBuilder.createModalIconLine("date_range", "Signal mottatt", feature.getFormattedDate());
-    retval += this._httpBuilder.createModalIconLine("date_range", "Destinasjon", feature._destination);
+    retval += this._httpBuilder.createModalIconLine("add_location", "Destinasjon", feature._destination);
     //TODO: Redskaper
     retval += this._httpBuilder.getSelfContainedHeading(6, "MER INFO");
     retval += "<div class='divider'></div>";
-    retval += this._httpBuilder.createModalIconLine("link", "Fiskerimeldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/Fiskerimeldinger"); //TODO: Make it look like URL
-    retval += this._httpBuilder.createModalIconLine("link", "J-meldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/J-meldinger/Gjeldende-J-meldinger/");
+    retval += this._httpBuilder.createModalIconLine("link", "Fiskerimeldinger", "<a target='_blank' href='https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/Fiskerimeldinger'>Fiskerimeldinger</a>");
+    retval += this._httpBuilder.createModalIconLine("link", "J-meldinger", "<a target='_blank' href='https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/J-meldinger/Gjeldende-J-meldinger/'>J-meldinger</a>");
     return retval;
 };
 
@@ -120,8 +120,8 @@ ComputerBackend.prototype._createJMessageBottomsheetContent = function (feature)
     retval += this._httpBuilder.createModalIconLine("highlight_off", "J-melding", feature._jmessageName);
     retval += this._httpBuilder.getSelfContainedHeading(6, "MER INFO");
     retval += "<div class='divider'></div>";
-    retval += this._httpBuilder.createModalIconLine("link", "Fiskerimeldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/Fiskerimeldinger"); //TODO: Make it look like URL
-    retval += this._httpBuilder.createModalIconLine("link", "J-meldinger", "https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/J-meldinger/Gjeldende-J-meldinger/");
+    retval += this._httpBuilder.createModalIconLine("link", "Fiskerimeldinger", "<a target='_blank' href='https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/Fiskerimeldinger'>Fiskerimeldinger</a>");
+    retval += this._httpBuilder.createModalIconLine("link", "J-meldinger", "<a target='_blank' href='https://www.fiskeridir.no/Yrkesfiske/Regelverk-og-reguleringer/J-meldinger/Gjeldende-J-meldinger/'>J-meldinger</a>");
     return retval;
 };
 
@@ -160,7 +160,7 @@ ComputerBackend.prototype._buildSeismicBottomsheetText = function (feature) {
     retval += this._httpBuilder.createModalIconLine("arrow_forward", "Sensorlengde", feature._sensorLength);
     retval += this._httpBuilder.getSelfContainedHeading(6, "MER INFO");
     retval += "<div class='divider'></div>";
-    retval += this._httpBuilder.createModalIconLine("link", "Oljedirektoratets faktasider", feature._factPage); //TODO: Make it look like URL
+    retval += this._httpBuilder.createModalIconLine("link", "Oljedirektoratets faktasider", feature._factPage); //TODO: Ma  ke it look like URL
     retval += this._httpBuilder.createModalIconLine("link", "Oljedirektoratets kart", feature._mapUrl);
     return retval;
 };

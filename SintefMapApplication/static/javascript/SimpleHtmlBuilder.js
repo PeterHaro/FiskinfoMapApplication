@@ -8,7 +8,7 @@ SimpleHtmlBuilder.prototype.createModalIconLine = function (iconName, fieldName,
     this.addMaterialIcon(iconName);
     this.addStrongText(fieldName);
     this.closeDiv();
-    this.beginColumn("6");
+    this.beginColumnAlignedToIcon("6");
     this.addText(fieldValue);
     this.closeDiv();
     this.endRow();
@@ -55,12 +55,16 @@ SimpleHtmlBuilder.prototype.beginColumn = function (size) {
     this._retval += "<div class='col " + size + "'>";
 };
 
+SimpleHtmlBuilder.prototype.beginColumnAlignedToIcon = function(size) {
+    this._retval += "<div class='col " + size + " align-material-text-to-icon' style='padding-top:11.5px'>";
+};
+
 SimpleHtmlBuilder.prototype.addMaterialIcon = function (icon) {
-    this._retval += "<i class='material-icons prefix'>" + icon + "</i>";
+    this._retval += "<i class='material-icons prefix small'>" + icon + "</i>";
 };
 
 SimpleHtmlBuilder.prototype.addStrongText = function (text) {
-    this._retval += "<strong>" + text + "</strong>";
+    this._retval += "<strong style='vertical-align: text-bottom'>" + text + "</strong>";
 };
 
 SimpleHtmlBuilder.prototype.clear = function () {
