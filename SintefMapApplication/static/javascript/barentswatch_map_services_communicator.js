@@ -188,7 +188,7 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer
     }
 };
 
-BarentswatchMapServicesCommunicator.prototype.createClusteredVectorToolLayer = function (_features, _title) {
+/*BarentswatchMapServicesCommunicator.prototype.createClusteredVectorToolLayer = function (_features, _title) {
     return new ol.layer.Vector({
         source: new ol.source.Cluster({
             distance: 17,
@@ -203,7 +203,7 @@ BarentswatchMapServicesCommunicator.prototype.createClusteredVectorToolLayer = f
         title: _title
     });
 };
-
+*/
 BarentswatchMapServicesCommunicator.prototype.createAuthenticatedServiceVectorLayer = function (token, query, authenticatedCall) {
     if (authenticatedCall === "ais") {
         FiskInfoUtility.corsRequest(query, "GET", "", this.parseAuthenticatedAISVectorLayer, corsErrBack, token);

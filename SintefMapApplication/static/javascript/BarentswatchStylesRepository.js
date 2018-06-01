@@ -594,7 +594,6 @@ var BarentswatchStylesRepository = function () {
         feature.get('features').forEach(function (f, index, array) {
             ol.extent.extend(extent, f.getGeometry().getExtent());
         });
-
         map.getView().fit(extent, map.getSize());
         aisClusterStyleFunction(feature, resolution);
         map.getInteractions().forEach(function (interaction) {
@@ -616,7 +615,31 @@ var BarentswatchStylesRepository = function () {
         });
 
         map.getView().fit(extent, map.getSize());
-        toolsClusterStyleFunction(feature, resolution);
+        switch (feature.get('features')[0].values_.tooltypecode) {
+            case "NETS":
+                netsClusterStyleFunction(feature, resolution);
+                break;
+            case "CRABPOT":
+                crabpotClusterStyleFunction(feature, resolution);
+                break;
+            case "MOORING":
+                mooringClusterStyleFunction(feature, resolution);
+                break;
+            case "LONGLINE":
+                longLineClusterStyleFunction(feature, resolution);
+                break;
+            case "DANPURSEINE":
+                danPurSeineClusterStyleFunction(feature, resolution);
+                break;
+            case "SENSORCABLE":
+                sensorCableClusterStyleFunction(feature, resolution);
+                break;
+            case "UNK":
+                unknownClusterStyleResolution(feature, resolution);
+                break;
+            default:
+                console.log("Invalid selected tool");
+        }
         map.getInteractions().forEach(function (interaction) {
             if (interaction instanceof ol.interaction.Select) {
                 if (interaction.featureOverlay_.style_.name === "_toolsSelectionStyleFunction") {
@@ -707,71 +730,6 @@ var BarentswatchStylesRepository = function () {
         return createUnknownToolStyle(size);
     };
     //</editor-fold>
-    var toolsClusterStyleFunction = function (feature, resolution) {
-        if (resolution != oldToolClusterStyleResolution) {
-            calculateClusterInfo(resolution, "tools");
-            oldToolClusterStyleResolution = resolution;
-        }
-
-        var style;
-        var size = feature.get('features').length;
-        if (size > 1) {
-            // Wish me luck
-            var features = feature.get("features");
-            var isSameTools = true;
-            var toolToCheck = feature.get("features")[0].values_.tooltypename;
-            for (var i = 0; i < size; i++) {
-                if (features[i].values_.tooltypename !== toolToCheck) {
-                    isSameTools = false;
-                    break;
-                }
-            }
-
-            if (isSameTools) {
-                switch (toolToCheck) {
-                    case "Nets":
-                        return createNetStyle(size);
-                    case "Crab pot":
-                        return createCrabPotStyle(size);
-                    case "Mooring system":
-                        return createMooringSystemStyle(size);
-                    case "Long line":
-                        return createLongLineStyle(size);
-                    case "Danish- / Purse- Seine":
-                        return createPurseSeineStyle(size);
-                    case "Sensor / Cable":
-                        return createSensorCableStyle(size);
-                    case "Unknown":
-                        return createUnknownToolStyle(size);
-                    default:
-                        console.log("SAYWHAAAT");
-                        console.log(toolToCheck);
-                        break;
-                }
-            }
-
-            style = toolsStyleCache[size];
-            if (!style) {
-                style = new ol.style.Style({
-                    image: new ol.style.Circle({
-                        radius: feature.get('radius'),
-                        fill: new ol.style.Fill({
-                            color: [1, 255, 132, Math.min(0.8, 0.4 + 1)]
-                        })
-                    }),
-                    text: new ol.style.Text({
-                        text: size.toString(),
-                        fill: textFill,
-                        stroke: textStroke
-                    })
-                });
-            }
-        } else {
-            var originalFeature = feature.get("features")[0];
-            style = createToolSingleFeatureStyle(originalFeature);
-        }
-        return style;
-    };
 
 // __BEGIN_SELECT_STYLES_
     var iceChartSelectStyleFunction = function () {
@@ -941,7 +899,7 @@ var BarentswatchStylesRepository = function () {
         BarentswatchAisSelectionStyle: aisSelectionStyleFunction,
         SetAisVectorLayer: setAisVectorLayer,
         GetAisVectorReference: getAisVectorReference,
-        BarentswatchToolStyle: toolsClusterStyleFunction,
+        //BarentswatchToolStyle: toolsClusterStyleFunction,
         //__BEGIN_TOOLS_
         BarentswatchToolNetsStyle: netsClusterStyleFunction,
         BarentswatchCrabpotToolStyle: crabpotClusterStyleFunction,
