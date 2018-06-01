@@ -785,7 +785,7 @@ var BarentswatchStylesRepository = function () {
     var aisSelectionStyleFunction = function () {
         return new ol.interaction.Select({
             condition: function (evt) {
-                return evt.type == 'singleclick';
+                return evt.type == 'singleclick' || evt.type == 'click';
             },
             style: _aisSelectionStyleFunction,
             name: "Ais-selection"
@@ -794,7 +794,7 @@ var BarentswatchStylesRepository = function () {
     var toolSelectionStyleFunction = function () {
         return new ol.interaction.Select({
             condition: function (evt) {
-                return evt.type === "singleclick";
+                return evt.type === "singleclick" || evt.type == 'click';
             },
             style: _toolsSelectionStyleFunction,
             name: "Tool-selection"
