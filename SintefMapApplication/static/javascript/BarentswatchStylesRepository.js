@@ -519,6 +519,7 @@ var BarentswatchStylesRepository = function () {
                 features = BarentswatchStylesRepository.GetAisVectorReference().getSource().getFeatures();
                 break;
             default:
+                console.log(clusterType);
                 console.log("Invalid typetype. What do we do now?");
         }
         var feature, radius;

@@ -33,7 +33,9 @@ map = new ol.Map({
     target: 'map',
     view: new ol.View({
         center: ol.proj.transform([15.5, 68], 'EPSG:4326', 'EPSG:3857'),
-        zoom: 6
+        zoom: 6,
+        minZoom: 3,
+        maxZoom: 15
     })
 });
 
@@ -252,6 +254,29 @@ function populateMap() {
     map.on("singleclick", function (evt) {
         displayFeatureInfo(evt.pixel);
     });
+    // TEST GLOBAL SELECTOR
+    map.on("click", function (evt) {
+        displayFeatureInfo(evt.pixel);
+    });
+
+
+    map.getView().on('change:resolution', function (evt) {
+        var view = evt.target;
+
+        this.getLayers().getArray().map(function (layer) {
+            var source = layer.getSource();
+            if (source instanceof ol.source.Cluster) {
+                var distance = source.getDistance();
+                if (view.getZoom() >= 15 && distance > 0) {
+                    source.setDistance(0);
+                }
+                else if (view.getZoom() < 15 && distance == 0) {
+                    source.setDistance(6);
+                }
+            }
+        });
+    }, map);
+
 }
 
 function corsErrBack(error) {
