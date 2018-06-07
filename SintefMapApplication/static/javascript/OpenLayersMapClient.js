@@ -276,12 +276,20 @@ function getLayersBySaneNameAndVisibilityState() {
     console.log(retval);
 }
 
+function setVsibilityOfLayerByPrettyName(name, visiblity) {
+    var layers = getAllMapLayers();
+    layers.forEach(function (layer) {
+        if (barentswatchLayersTranslator.translateFromSaneNameToLayername(layer.get("title")) === name) {
+            layer.setVisible(visiblity);
+        }
+    });
+}
+
 function setVsibilityOfLayerByName(name, visiblity) {
     var layers = getAllMapLayers();
     layers.forEach(function (layer) {
         if (layer.get("title") === name) {
             layer.setVisible(visiblity);
-            return;
         }
     });
 }
