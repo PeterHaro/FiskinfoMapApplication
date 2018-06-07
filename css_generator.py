@@ -87,7 +87,13 @@ class CSSGenerator(object):
         self.clean_up()
         self.merge_remote_css_repositories_into_minified_bundle()
 
+class Mordi(object):
+
+    @staticmethod
+    def fardin():
+        return "yolo"
 
 if __name__ == "__main__":
+    print(Mordi.fardin())
     CSSGenerator = CSSGenerator(configuration_file="configuration.json")
     CSSGenerator.run()

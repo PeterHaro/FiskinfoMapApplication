@@ -17,10 +17,15 @@ function BarentswatchMapServicesCommunicator() {
     this.projectionExtent = this.projection.getExtent();
     this._map = null;
     this._aisStyle = null;
+    this._aisSearchPlugin = null; // This plugin facilities the search for vessels and other entities with AIS enabled
 }
 
 BarentswatchMapServicesCommunicator.prototype.setMap = function (map) {
     this._map = map;
+};
+
+BarentswatchMapServicesCommunicator.prototype.setAISSearchPlugin = function (plugin) {
+    this._aisSearchPlugin = plugin;
 };
 
 // __BEGIN_AIS_SERVICE_
@@ -99,10 +104,31 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
         renderMode: 'image'
     });
 
+    var interactionSelection;
     if (this.map != null) {
         BarentswatchStylesRepository.SetAisVectorLayer(layer);
         map.addLayer(layer);
-        map.addInteraction(BarentswatchStylesRepository.BarentswatchAisSelectionStyle());
+        interactionSelection = BarentswatchStylesRepository.BarentswatchAisSelectionStyle();
+        map.addInteraction(interactionSelection);
+    }
+    if (this.aisSearchModule != null) { // TODO: FIXME: REPLACE THIS!!! This is fetched from outer scope as a UUUUUUUUGLY hack
+        this.aisSearchModule.setVesselData(BarentswatchStylesRepository.GetAisVectorReference().getSource().getSource().getFeatures());
+        $(document).ready(function () {
+            $('input.autocomplete').autocomplete({
+                data: aisSearchModule.getVesselObject(),
+                onAutocomplete: function (val) {
+                    map.getView().fit(aisSearchModule.getVessel(val).getGeometry(), map.getSize());
+                    interactionSelection.getFeatures().push(aisSearchModule.getVessel(val));
+                    interactionSelection.dispatchEvent({
+                        type: 'select',
+                        selected: [aisSearchModule.getVessel(val)],
+                        deselected: []
+                    });
+                }
+            });
+        });
+
+
     }
 };
 

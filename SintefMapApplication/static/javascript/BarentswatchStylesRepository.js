@@ -587,6 +587,10 @@ var BarentswatchStylesRepository = function () {
     };
 
     var _aisSelectionStyleFunction = function (feature, resolution) {
+        if (feature.get('features') === undefined) {
+            dispatchDataToBottomsheet(feature, BarentswatchApiObjectTypes.AIS); //TODO: REMOVE THIS SUPERHACK
+            return createAisSingleFeatureStyle(feature);
+        }
         if (feature.get('features').length === 1) {
             return createAisSingleFeatureStyle(feature.get('features')[0]);
         }

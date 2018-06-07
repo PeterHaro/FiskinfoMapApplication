@@ -15,12 +15,12 @@ from werkzeug.http import parse_authorization_header
 from werkzeug.wrappers import BaseResponse
 
 from . import filters
+from .blueprints.map_application_blueprint import map_application_base_blueprint
 from .flask_common import Common
 from .utility import CaseInsensitiveDict
 from .utility import get_headers, status_code, get_dict, get_request_range, check_basic_auth, check_digest_auth, \
     secure_cookie, ROBOT_TXT, PERMISSION_DENIED_MESSAGE, parse_multi_value_header, next_stale_after_value, \
     digest_challenge_response
-from .blueprints.map_application_blueprint import map_application_base_blueprint
 
 
 # Python 2.x interoperability
@@ -47,7 +47,7 @@ BaseResponse.autocorrect_location_header = False
 template_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 static_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 app = Flask(__name__, template_folder=template_directory, static_folder=static_directory)
-app.debug = True # bool(os.environ.get('DEBUG'))
+app.debug = True  # bool(os.environ.get('DEBUG'))
 common = Common(app)
 
 
@@ -436,7 +436,7 @@ def digest_auth(qop=None, user='user', passwd='passwd', algorithm='MD5', stale_a
         return response
 
     if (require_cookie_handling and
-                request.cookies.get('fake') != 'fake_value'):
+            request.cookies.get('fake') != 'fake_value'):
         response = jsonify({'errors': ['missing cookie set on challenge']})
         response.set_cookie('fake', value='fake_value')
         response.status_code = 403
@@ -449,8 +449,8 @@ def digest_auth(qop=None, user='user', passwd='passwd', algorithm='MD5', stale_a
         stale_after_value = request.cookies.get('stale_after')
 
     if ('last_nonce' in request.cookies and
-                current_nonce == request.cookies.get('last_nonce') or
-                stale_after_value == '0'):
+            current_nonce == request.cookies.get('last_nonce') or
+            stale_after_value == '0'):
         response = digest_challenge_response(app, qop, algorithm, True)
         response.set_cookie('stale_after', value=stale_after)
         response.set_cookie('last_nonce', value=current_nonce)
@@ -780,6 +780,13 @@ def xml():
     response = make_response(render_template("test_templates/xml_test.xml"))
     response.headers["Content-Type"] = "application/xml"
     return response
+
+
+class Mordi(object):
+
+    @staticmethod
+    def fardin():
+        return "yolo"
 
 
 ##############################

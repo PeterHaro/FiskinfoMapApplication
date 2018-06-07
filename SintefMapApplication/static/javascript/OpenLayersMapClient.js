@@ -1,6 +1,8 @@
 var applicationType = Backend.Type.COMPUTER;
 
 var map;
+var app = {};
+var aisSearchModule = new VesselAisSearchModule();
 var statensKartverkCommunicator = new StatensKartverkCommunicator();
 var barentswatchCommunicator = new BarentswatchMapServicesCommunicator();
 var tileLayerWMTS = statensKartverkCommunicator.CreateTileLayerWTMSFromSource(statensKartverkCommunicator.CreateSourceWmts("sjokartraster"), "base", "Norges grunnkart");
@@ -27,10 +29,30 @@ var geolocator = null;
 var sensor = false;
 // __END_GEOLOCATION
 
+// __BEGIN_CONTROLS_AND_INTERACTIONS_
+var defaultInteractions = ol.interaction.defaults({altShiftDragRotate: false, pinchRotate: false});
+
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function () {
+        var context = this, args = arguments;
+        var later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
+
+
 map = new ol.Map({
     //renderer: (['webgl', 'canvas']),
     layers: [polar],
     target: 'map',
+    interactions: defaultInteractions,
     view: new ol.View({
         center: ol.proj.transform([15.5, 68], 'EPSG:4326', 'EPSG:3857'),
         zoom: 6,
@@ -38,6 +60,32 @@ map = new ol.Map({
         maxZoom: 15
     })
 });
+
+app.DebounceSelect = function () {
+    this.selectInteraction = new ol.interaction.Select({
+        condition: ol.events.condition.singleclick
+    });
+
+    var handleEventDebounce = debounce(function (evt) {
+        return ol.interaction.Select.handleEvent.call(this.selectInteraction, evt);
+    }.bind(this), 100);
+
+    ol.interaction.Interaction.call(this, {
+        handleEvent: function (evt) {
+            handleEventDebounce(evt);
+            // always return true so that other interactions can
+            // also process the event
+            return true;
+        }
+    });
+};
+ol.inherits(app.DebounceSelect, ol.interaction.Interaction);
+
+app.DebounceSelect.prototype.setMap = function (map) {
+    this.selectInteraction.setMap(map);
+};
+var debounceSelect = new app.DebounceSelect();
+map.addInteraction(debounceSelect);
 
 //var sidebar = new ol.control.Sidebar({element: 'sidebar', position: 'left'});
 //map.addControl(sidebar);
@@ -219,6 +267,11 @@ function setVsibilityOfLayerByName(name, visiblity) {
 
 function populateMap() {
     barentswatchCommunicator.setMap(map);
+    barentswatchCommunicator.setAISSearchPlugin(aisSearchModule);
+    //document.addEventListener('DOMContentLoaded', function () { // TODO: REPLACE THIS
+//        var elems = document.querySelectorAll('.autocomplete');
+//        var instances = M.Autocomplete.init(elems, options);
+//    });
     var iceChartLayer = barentswatchCommunicator.createApiServiceVectorLayer("icechart", BarentswatchStylesRepository.BarentswatchIceChartStyle);
     var ongoingSeismic = barentswatchCommunicator.createApiServiceVectorLayer("npdsurveyongoing", BarentswatchStylesRepository.BarentswatchActiveSeismicStyle);
     var plannedSeismic = barentswatchCommunicator.createApiServiceVectorLayer("npdsurveyplanned", BarentswatchStylesRepository.BarentswatchPlannedSeismicStyle);
@@ -227,9 +280,9 @@ function populateMap() {
     var coastalcodRegulations = barentswatchCommunicator.createApiServiceVectorLayer("coastalcodregulations", BarentswatchStylesRepository.BarentswatchCoastalRegulationStyle);
     var coralReef = barentswatchCommunicator.createApiServiceVectorLayer("coralreef", BarentswatchStylesRepository.BarentswatchCoralReefStyle);
 
+
     barentswatchCommunicator.createAisVectorLayer(backendCommunicator, null);
     barentswatchCommunicator.createToolsVectorLayer(backendCommunicator);
-
 
     map.addLayer(iceChartLayer);
     map.addLayer(ongoingSeismic);
@@ -254,10 +307,6 @@ function populateMap() {
     map.on("singleclick", function (evt) {
         displayFeatureInfo(evt.pixel);
     });
-    // TEST GLOBAL SELECTOR
-    map.on("click", function (evt) {
-        displayFeatureInfo(evt.pixel);
-    });
 
 
     map.getView().on('change:resolution', function (evt) {
@@ -276,7 +325,6 @@ function populateMap() {
             }
         });
     }, map);
-
 }
 
 function corsErrBack(error) {
