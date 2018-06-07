@@ -67,7 +67,7 @@ map = new ol.Map({
 
 app.DebounceSelect = function () {
     this.selectInteraction = new ol.interaction.Select({
-        condition: ol.events.condition.singleclick
+        condition: ol.events.condition.singleclick,
     });
 
     var handleEventDebounce = debounce(function (evt) {
@@ -109,14 +109,6 @@ var popupOverlay = new ol.Overlay({
     }
 });
 
-
-function createClusterSource(_source) {
-    return new ol.source.Cluster({
-        source: _source
-    });
-}
-
-
 function buggyZoomToMyPosition() {
     geolocator = new Geolocator(true, tileLayerWMTS.getSource().getProjection());
     var localGeolocationObject = geolocator.getGeolocation();
@@ -142,6 +134,8 @@ var displayFeatureInfo = function (pixel) {
     map.forEachFeatureAtPixel(pixel, function (feature, layer) {
         features.push(feature);
         layers.push(layer);
+    }, {
+        hitTolerance: 10
     });
     if (!Array.isArray(layers) || !layers.length) {
         // No features, escape early
