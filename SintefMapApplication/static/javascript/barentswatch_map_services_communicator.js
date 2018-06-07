@@ -124,7 +124,8 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
                         selected: [aisSearchModule.getVessel(val)],
                         deselected: []
                     });
-                }
+                },
+                limit: 5
             });
         });
 
