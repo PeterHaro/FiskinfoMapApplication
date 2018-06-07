@@ -273,7 +273,7 @@ function getLayersBySaneNameAndVisibilityState() {
             visibility: layer.getVisible()
         });
     });
-    console.log(retval);
+    return retval;
 }
 
 function setVsibilityOfLayerByPrettyName(name, visiblity) {
