@@ -3,6 +3,7 @@ var applicationType = Backend.Type.COMPUTER;
 var map;
 var app = {};
 var aisSearchModule = new VesselAisSearchModule();
+var barentswatchLayersTranslator = new BarentswatchLayersTranslator("nb_NO");
 var statensKartverkCommunicator = new StatensKartverkCommunicator();
 var barentswatchCommunicator = new BarentswatchMapServicesCommunicator();
 var tileLayerWMTS = statensKartverkCommunicator.CreateTileLayerWTMSFromSource(statensKartverkCommunicator.CreateSourceWmts("sjokartraster"), "base", "Norges grunnkart");
@@ -53,6 +54,9 @@ map = new ol.Map({
     layers: [polar],
     target: 'map',
     interactions: defaultInteractions,
+    controls: ol.control.defaults({
+        attribution: false,
+    }),
     view: new ol.View({
         center: ol.proj.transform([15.5, 68], 'EPSG:4326', 'EPSG:3857'),
         zoom: 6,
@@ -129,8 +133,6 @@ function dispatchDataToBottomsheet(feature, type) {
     _feature.parseObject(feature);
     //DISPATCH HERE
     backendCommunicator.showBottmsheet(_feature);
-
-
 }
 
 // TODO: REFACTOR ME
@@ -253,6 +255,25 @@ function getLayersByNameAndVisibilityState() {
         retval.push({name: layer.get("title"), visibility: layer.getVisible()});
     });
     return retval;
+}
+
+function getLayersBySaneNameAndVisibilityState() {
+    var retval = [];
+    var toolFound = false;
+    var mapLayers = getAllMapLayers();
+    getAllMapLayers().forEach(function (layer) {
+        if (toolFound === true && barentswatchLayersTranslator.translateFromLayerToSaneName(layer.get("title")) === "Redskaper") {
+            return;
+        }
+        if (toolFound === false && barentswatchLayersTranslator.translateFromLayerToSaneName(layer.get("title")) === "Redskaper") {
+            toolFound = true;
+        }
+        retval.push({
+            name: barentswatchLayersTranslator.translateFromLayerToSaneName(layer.get("title")),
+            visibility: layer.getVisible()
+        });
+    });
+    console.log(retval);
 }
 
 function setVsibilityOfLayerByName(name, visiblity) {
