@@ -174,7 +174,7 @@ class CommonHttpTestCases(unittest.TestCase):
         self.assertEqual(
             response.headers.get('Access-Control-Max-Age'), '3600'
         )
-        # TODO: FIXME: should we add any extra headers?
+        # LEGACY_TODO: LEGACY_FIXME: should we add any extra headers?
         self.assertNotIn(
             'Access-Control-Allow-Headers', response.headers
         )

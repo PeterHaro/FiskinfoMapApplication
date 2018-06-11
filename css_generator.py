@@ -5,8 +5,8 @@ from shutil import copyfile
 from shutil import rmtree
 
 
-# TODO: Move from the ruby compilation of sass into a python module to remove the sass gem requirement
-# TODO: Use external sass compilation rather then relying on dist css.
+# LEGACY_TODO: Move from the ruby compilation of sass into a python module to remove the sass gem requirement
+# LEGACY_TODO: Use external sass compilation rather then relying on dist css.
 class CSSGenerator(object):
     SASS_CACHE_DIRNAME = ".sass-cache"
     OUTPUT_FILENAME = "styles.css"

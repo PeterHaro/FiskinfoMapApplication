@@ -93,7 +93,7 @@ class Expander(object):
         with codecs.open(self.output_directory + "/" + filename, "w+", "utf-8") as outputFile:
             outputFile.writelines(output_lines)
 
-    # TODO: Refactor this method, especially the part with multiple expansions
+    # LEGACY_TODO: Refactor this method, especially the part with multiple expansions
     # noinspection PyTypeChecker
     def process_line(self, line):
         match = self.REGULAR_EXPRESSION_FOR_LOCATING_EXPANSION_ENTRY.search(line)

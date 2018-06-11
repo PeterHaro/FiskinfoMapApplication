@@ -1,15 +1,10 @@
 class VesselAisSearchModule {
-    /*  constructor(vessels) {
-          this.vessels = vessels.reduce((map, obj) => (map[obj.values_.name] = obj, map), {});
-          this.vesselNames = [...this.vessels.keys()]; // TODO: Do me dynamically if the size is 2 large
-       } */
-
     constructor() {
     }
 
     setVesselData(vessels) {
         this.vessels = new Map(vessels.map((i) => [i.values_.Name, i]));// vessels.reduce((map, obj) => (map[obj.values_.Name] = obj, map), {});
-        this.vesselNames = [...this.vessels.keys()]; // TODO: Do me dynamically if the size is 2 large
+        this.vesselNames = [...this.vessels.keys()];
     }
 
     getVesselMap() {

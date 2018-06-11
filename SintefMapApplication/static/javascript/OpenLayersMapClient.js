@@ -185,6 +185,12 @@ var displayFeatureInfo = function (pixel) {
             dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
             break;
         case "Tools-crabpot":
+            if(features[0].superHack !== undefined && features[0].superHack) {
+                for(var i = 0; i < features.length; i++) {
+                    features[i].superHack = false;
+                }
+                dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
+            }
             if (features[features.length - 1].values_.features.length > 1) {
                 return;
             }
