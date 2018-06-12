@@ -681,17 +681,13 @@ var BarentswatchStylesRepository = function () {
             calculateClusterInfo(resolution, "CRABPOT");
             crabPotClusterStyleResolution = resolution;
         }
-        if(resolution < 25) { //THESE ARE NOT SELECTABLE
+        if (resolution < 25) { //THESE ARE NOT SELECTABLE
             let styles = [];
             let features = feature.get("features");
-            for(var i = 0; i < features.length; i++) {
+            for (var i = 0; i < features.length; i++) {
                 features[i].superHack = true;
                 styles.push(createToolSingleFeatureStyle(features[i]));
             }
-            console.log("I CAME INTO HACK");
-            console.log("I am returing these styles!");
-            console.log(styles);
-
             return styles;
         }
 

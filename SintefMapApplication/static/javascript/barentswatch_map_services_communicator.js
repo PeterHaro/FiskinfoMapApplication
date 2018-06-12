@@ -109,6 +109,9 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
     var interactionSelection;
     if (this.map != null) {
         BarentswatchStylesRepository.SetAisVectorLayer(layer);
+        //TODO: REMOVE ME
+        layer.setVisible(false);
+        //TODO REMOVE ME
         map.addLayer(layer);
         interactionSelection = BarentswatchStylesRepository.BarentswatchAisSelectionStyle();
         map.addInteraction(interactionSelection);
@@ -206,6 +209,16 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedToolsVectorLayer
         BarentswatchStylesRepository.BarentswatchSetDanishPurSeineVectorReference(danishPurseSeineLayer);
         BarentswatchStylesRepository.BarentswatchSetSensorCableVectorReference(sensorCableLayer);
         BarentswatchStylesRepository.BarentswatchSetUnknownVectorReference(unknownToolLayer);
+
+        //TODO: REMOVE ME
+        netsLayer.setVisible(false);
+        crabpotLayer.setVisible(false);
+        mooringLayer.setVisible(false);
+        longLineLayer.setVisible(false);
+        danishPurseSeineLayer.setVisible(false);
+        sensorCableLayer.setVisible(false);
+        unknownToolLayer.setVisible(false);
+        //
         map.addLayer(netsLayer);
         map.addLayer(crabpotLayer);
         map.addLayer(mooringLayer);
