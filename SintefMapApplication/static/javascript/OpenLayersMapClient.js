@@ -180,48 +180,18 @@ var displayFeatureInfo = function (pixel) {
             dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
             break;
         case "Tools-nets":
-            if (features[features.length - 1].values_.features.length > 1) {
-                return;
-            }
-            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
-            break;
         case "Tools-crabpot":
+        case "Tools-mooring":
+        case "Tools-longLine":
+        case "Tools-danishPurseSeine":
+        case "Tools-sensorcables":
+        case "Tools-unknown":
             if (features[0].superHack !== undefined && features[0].superHack) {
                 for (var i = 0; i < features.length; i++) {
                     features[i].superHack = false;
                 }
                 dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
             }
-            if (features[features.length - 1].values_.features.length > 1) {
-                return;
-            }
-            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
-            break;
-        case "Tools-mooring":
-            if (features[features.length - 1].values_.features.length > 1) {
-                return;
-            }
-            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
-            break;
-        case "Tools-longLine":
-            if (features[features.length - 1].values_.features.length > 1) {
-                return;
-            }
-            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
-            break;
-        case "Tools-danishPurseSeine":
-            if (features[features.length - 1].values_.features.length > 1) {
-                return;
-            }
-            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
-            break;
-        case "Tools-sensorcables":
-            if (features[features.length - 1].values_.features.length > 1) {
-                return;
-            }
-            dispatchDataToBottomsheet(features[features.length - 1].values_.features[0], BarentswatchApiObjectTypes.TOOL);
-            break;
-        case "Tools-unknown":
             if (features[features.length - 1].values_.features.length > 1) {
                 return;
             }
