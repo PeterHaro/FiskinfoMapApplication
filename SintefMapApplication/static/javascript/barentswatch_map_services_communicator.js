@@ -85,7 +85,9 @@ BarentswatchMapServicesCommunicator.prototype.parseAuthenticatedAISVectorLayer =
                 "Eta": jsonData[i].Eta,
                 "Destination": jsonData[i].Destination,
                 "IsSurvey": jsonData[i].IsSurvey,
-                "Source": jsonData[i].Source
+                "Source": jsonData[i].Source,
+                "Lat": jsonData[i].Lat,
+                "Lon": jsonData[i].Lon,
             }
         });
     }
